@@ -12,7 +12,7 @@ public class SimpleHttpServer {
 		server.createContext("/", new RootHandler());
 		server.setExecutor(null);
 		server.start();
-		System.out.println("Server started on port 8080");
+		System.out.println("Server started on port 8081");
 	}
 
 	static class RootHandler implements HttpHandler {
