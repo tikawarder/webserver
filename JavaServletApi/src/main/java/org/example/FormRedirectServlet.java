@@ -9,7 +9,6 @@ import java.io.IOException;
 public class FormRedirectServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		RequestDispatcher dispatcher = req.getRequestDispatcher("/form.html");
-		dispatcher.forward(req, resp);
+		resp.sendRedirect("/simple-servlet-app/form.html");
 	}
 }

@@ -22,6 +22,5 @@ public class HelloServlet extends HttpServlet {
 		out.println("<h1>Üdv, " + name + "!</h1>");
 		out.println("<p>Születési dátumod: " + birthdate + "</p>");
 		out.println("</body></html>");
-
 	}
 }
