@@ -10,11 +10,14 @@
 <h2>JSP űrlap kitöltése</h2>
 
 <form action="other.jsp" method="POST">
-    <label for="username">Felhasználónév:</label><br>
-    <input type="text" id="username" name="username"><br><br>
+    <label for="name">Név:</label><br>
+    <input type="text" id="name" name="name" required><br><br>
 
-    <label for="age">Életkor:</label><br>
-    <input type="text" id="age" name="age"><br><br>
+    <label for="birthdate">Születési dátum:</label><br>
+    <input type="date" id="birthdate" name="birthdate" required><br><br>
+
+    <label for="city">Városod:</label><br>
+    <input type="text" id="city" name="city" required><br><br>
 
     <input type="submit" value="Küldés">
 </form>
