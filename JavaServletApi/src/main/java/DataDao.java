@@ -1,4 +1,8 @@
+import myData.Person;
+
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataDao {
 	private static final String URL = "jdbc:mysql://localhost:3307/usersdb";
@@ -21,8 +25,9 @@ public class DataDao {
 			e.printStackTrace();		}
 	}
 
-	public void listUsers() {
+	public List<Person> listUsers() {
 		String sql = "SELECT * FROM users";
+		List<Person> persons = new ArrayList<Person>();
 
 		try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
 			 Statement stmt = conn.createStatement();
@@ -34,11 +39,13 @@ public class DataDao {
 				Date birthDate = rs.getDate("birth");
 				String city = rs.getString("city");
 
-				System.out.printf("ID: %d, Name: %s, Birth: %s, City: %s%n", id, name, birthDate.toString(), city);
+				Person person = new Person(id, name, birthDate, city);
+				persons.add(person);
 			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return persons;
 	}
 }
