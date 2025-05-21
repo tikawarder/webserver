@@ -1,15 +1,13 @@
-package org.example;
-
 import java.sql.*;
 
 public class DataDao {
 	private static final String URL = "jdbc:mysql://localhost:3307/usersdb";
 	private static final String USER = "root";
-	private static final String PASS = "rootpass";
+	private static final String PASS = "root";
 
 	public void insertUser(String name, String birthString, String city) {
 		Date birth = Date.valueOf(birthString);
-		String sql = "INSERT INTO data (name, birth, city) VALUES (?, ?, ?)";
+		String sql = "INSERT INTO users (name, birth, city) VALUES (?, ?, ?)";
 
 		try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
 			 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -18,14 +16,13 @@ public class DataDao {
 			stmt.setDate(2, birth);
 			stmt.setString(3, city);
 			stmt.executeUpdate();
-			System.out.println("Felhasználó beszúrva!");
 
 		} catch (SQLException e) {
 			e.printStackTrace();		}
 	}
 
 	public void listUsers() {
-		String sql = "SELECT * FROM data";
+		String sql = "SELECT * FROM users";
 
 		try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
 			 Statement stmt = conn.createStatement();
@@ -37,7 +34,7 @@ public class DataDao {
 				Date birthDate = rs.getDate("birth");
 				String city = rs.getString("city");
 
-				System.out.printf("ID: %d, Név: %s, Szül: %s, Város: %s%n", id, name, birthDate.toString(), city);
+				System.out.printf("ID: %d, Name: %s, Birth: %s, City: %s%n", id, name, birthDate.toString(), city);
 			}
 
 		} catch (SQLException e) {

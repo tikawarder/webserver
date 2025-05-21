@@ -24,4 +24,20 @@ My detailed plan with milestones:
 
 6, Google Cloud Privider (GCP)                    - Move the project to GCP
 
+Preparing:
+1, use java 17
+2, install Docker CLI
+3, Git installed
+
+Start:
+
+1, Clone this repository
+
+2,type ./start.sh to start the deploy process
+
+    - it will start a mysql docker container
+    - deploys the java code with a built-in tomcat server
+
+3, visit localhost:8080/webapp/
+
                                                   

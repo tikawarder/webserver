@@ -7,19 +7,19 @@
     <title>Simple JSP Example</title>
 </head>
 <body>
-<h2>JSP űrlap kitöltése</h2>
+<h2>Fill this form please</h2>
 
-<form action="other.jsp" method="POST">
-    <label for="name">Név:</label><br>
+<form action="store" method="POST">
+    <label for="name">Name:</label><br>
     <input type="text" id="name" name="name" required><br><br>
 
-    <label for="birthdate">Születési dátum:</label><br>
+    <label for="birthdate">Birth date:</label><br>
     <input type="date" id="birthdate" name="birthdate" required><br><br>
 
-    <label for="city">Városod:</label><br>
+    <label for="city">Your city:</label><br>
     <input type="text" id="city" name="city" required><br><br>
 
-    <input type="submit" value="Küldés">
+    <input type="submit" value="Send">
 </form>
 </body>
 </html>
