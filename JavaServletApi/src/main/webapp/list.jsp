@@ -1,6 +1,6 @@
 <<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
-<%@ page import="myData.Person" %>
+<%@ page import="model.Person" %>
 
 <html>
 <head>

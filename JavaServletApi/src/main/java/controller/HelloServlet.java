@@ -1,4 +1,7 @@
-import myData.Person;
+package controller;
+
+import model.DataDao;
+import model.Person;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
