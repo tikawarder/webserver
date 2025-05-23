@@ -1,6 +1,6 @@
 package controller;
 
-import model.DataDao;
+import model.PersonDao;
 import model.Person;
 
 import javax.servlet.RequestDispatcher;
@@ -17,9 +17,9 @@ import java.util.List;
 public class HelloServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		DataDao dao = new DataDao();
-		List<Person> persons = dao.listUsers();
-		request.setAttribute("persons", persons);
+//		PersonDao dao = new PersonDao();
+//		List persons = dao.listUsers();
+//		request.setAttribute("persons", persons);
 
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/list.jsp");
 		dispatcher.forward(request, response);

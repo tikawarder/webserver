@@ -1,6 +1,7 @@
 package controller;
 
-import model.DataDao;
+import model.Person;
+import model.PersonDao;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
@@ -15,8 +16,9 @@ public class StoreServlet extends HttpServlet {
 		String birthDate = request.getParameter("birthdate");
 		String city = request.getParameter("city");
 
-		DataDao dao = new DataDao();
-		dao.insertUser(name, birthDate, city);
+		PersonDao dao = new PersonDao();
+		Person person = new Person(name, DateFormatter.toLocalDateFormat(birthDate), city);
+		dao.saveUser(person);
 
 		request.getRequestDispatcher("report.jsp").forward(request, response);
 	}
