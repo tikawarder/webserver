@@ -1,5 +1,6 @@
 package controller;
 
+import model.JPAUtil;
 import model.Person;
 import model.PersonDao;
 
@@ -16,7 +17,7 @@ public class StoreServlet extends HttpServlet {
 		String birthDate = request.getParameter("birthdate");
 		String city = request.getParameter("city");
 
-		PersonDao dao = new PersonDao();
+		PersonDao dao = new PersonDao(JPAUtil.getEntityManagerFactory());
 		Person person = new Person(name, DateFormatter.toLocalDateFormat(birthDate), city);
 		dao.saveUser(person);
 
