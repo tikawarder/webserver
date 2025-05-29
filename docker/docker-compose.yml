@@ -7,11 +7,19 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
     volumes:
-      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   tomcat:
     build:
       context: .
       dockerfile: Dockerfile
+    depends_on:
+      mysql_for_webserver:
+        condition: service_healthy
     ports:
       - "8080:8080"
     volumes:
