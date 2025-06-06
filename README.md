@@ -33,11 +33,14 @@ Start:
 
 1, Clone this repository
 
-2,type ./start.sh to start the deploy process
+2, type ./start.sh to start the deploy process
 
     - it will start a mysql docker container
     - deploys the java code with a built-in tomcat server
 
 3, visit localhost:8080/webapp/
 
-                                                  
+4, When Soap server (DatabaseServer) is started, the endpoint is that: http://database-server:8081/ws/decoder?wsdl
+
+5, Soap client classes (in UserInputServer) can be generate with in the beginning with /wsimport/wsimport.sh
+    usage: from UserInputServer root:  /wsimport/wsimport.sh -s /UserInputServer/src/main/java -p soapclient http://localhost:8081/ws/decoder?wsdl
