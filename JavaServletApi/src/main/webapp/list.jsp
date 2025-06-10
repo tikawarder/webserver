@@ -1,6 +1,5 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.List" %>
-<%@ page import="model.Person" %>
 
 <html>
 <head>
@@ -10,26 +9,22 @@
 <h1>Users from the database</h1>
 
 <ul>
-    <%
-        List<Person> persons = (List<Person>) request.getAttribute("persons");
-        if (persons != null && !persons.isEmpty()) {
-            for (Person person : persons) {
-    %>
-    <li>
-        <strong>ID:</strong> <%= person.getId() %><br>
-        <strong>Name:</strong> <%= person.getName() %><br>
-        <strong>Birth date:</strong> <%= person.getBirthDay() %><br>
-        <strong>City:</strong> <%= person.getCity() %>
-    </li>
-    <hr>
-    <%
-        }
-    } else {
-    %>
-    <li>No users found.</li>
-    <%
-        }
-    %>
+    <c:choose>
+        <c:when test="${not empty persons}">
+            <c:forEach var="person" items="${persons}">
+                <li>
+                    <strong>ID:</strong> ${person.id}<br>
+                    <strong>Name:</strong> ${person.name}<br>
+                    <strong>Birth date:</strong> ${person.birthDay}<br>
+                    <strong>City:</strong> ${person.city}
+                </li>
+                <hr>
+            </c:forEach>
+        </c:when>
+        <c:otherwise>
+            <li>No users found.</li>
+        </c:otherwise>
+    </c:choose>
 </ul>
 
 <p><a href="<%= request.getContextPath() %>/form.jsp">Towards to input form</a></p>

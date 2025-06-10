@@ -32,6 +32,16 @@
             <artifactId>hibernate-core</artifactId>
             <version>6.4.2.Final</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.10.0</version> <!-- vagy a legfrissebb verzió -->
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
     </dependencies>
 
     <properties>

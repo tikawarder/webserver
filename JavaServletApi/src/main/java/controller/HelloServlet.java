@@ -1,6 +1,6 @@
 package controller;
 
-import model.ContextListener;
+import utils.ContextListener;
 import model.PersonDao;
 import model.Person;
 

@@ -1,4 +1,4 @@
-package model;
+package utils;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
