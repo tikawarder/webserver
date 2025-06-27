@@ -1,28 +1,23 @@
 package model;
 
+import jakarta.json.bind.annotation.JsonbDateFormat;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import services.LocalDateAdapter;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
 @Table(name = "users")
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
 public class Person {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private String name;
-	@XmlJavaTypeAdapter(LocalDateAdapter.class)
+	@JsonbDateFormat("yyyy-MM-dd")
 	private LocalDate birthDay;
 	private String city;
 

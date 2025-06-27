@@ -1,7 +1,5 @@
 package services;
 
-import jakarta.jws.WebMethod;
-import jakarta.jws.WebService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.TypedQuery;
@@ -9,7 +7,6 @@ import model.Person;
 
 import java.util.List;
 
-@WebService
 public class PersonDao {
 	private EntityManagerFactory emFactory;
 
@@ -17,7 +14,6 @@ public class PersonDao {
 		this.emFactory = emFactory;
 	}
 
-	@WebMethod
 	public void saveUser(Person person) {
 		EntityManager entityManager = emFactory.createEntityManager();
 		try {
@@ -32,7 +28,6 @@ public class PersonDao {
 		}
 	}
 
-	@WebMethod
 	public List<Person> listUsers() {
 		EntityManager entityManager = emFactory.createEntityManager();
 		try {
@@ -43,7 +38,6 @@ public class PersonDao {
 		}
 	}
 
-	@WebMethod
 	public Person getPersonByName(String name) {
 		return new Person();
 	}

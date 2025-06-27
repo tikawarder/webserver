@@ -1,16 +1,17 @@
 package model;
 
+import jakarta.json.bind.annotation.JsonbDateFormat;
 import java.time.LocalDate;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
 public class Person {
-
+	private int id;
 	private String name;
+	@JsonbDateFormat("yyyy-MM-dd")
 	private LocalDate birthDay;
 	private String city;
 
-	public Person(String name, LocalDate birthDay, String city) {
+	public Person(int id, String name, LocalDate birthDay, String city) {
+		this.id = id;
 		this.name = name;
 		this.birthDay = birthDay;
 		this.city = city;
@@ -41,6 +42,14 @@ public class Person {
 
 	public void setCity(String city) {
 		this.city = city;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	@Override

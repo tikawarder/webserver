@@ -1,15 +1,16 @@
 package controller;
 
-import soapclient.LocalDate;
-import soapclient.Person;
-import soapclient.DataProcessor;
-import soapclient.DataProcessorImplService;
-import utils.InputSanitizer;
+import service.InputSanitizer;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
+import java.time.LocalDate;
+
+import service.RestClientService;
+
+import jakarta.ws.rs.core.Response;
 
 @WebServlet("/store")
 public class StoreServlet extends HttpServlet {
@@ -19,15 +20,18 @@ public class StoreServlet extends HttpServlet {
 		String stringLocalDate = InputSanitizer.sanitize(request.getParameter("birthdate"));
 		String city =  InputSanitizer.sanitize(request.getParameter("city"));
 
-		Person person = new Person();
-		person.setName(name);
-		person.setBirthDay(new LocalDate(stringLocalDate));
-		person.setCity(city);
+		LocalDate date = LocalDate.parse(stringLocalDate);
 
-		DataProcessorImplService service = new DataProcessorImplService();
-		DataProcessor port = service.getDataProcessorImplPort();
-		port.decodeAndStore(person);
+		Response clientResponse = RestClientService.sendPersonToServer(name, date, city);
 
+		int status = clientResponse.getStatus();
+		String responseBody = clientResponse.readEntity(String.class);
+
+		System.out.println("Status: " + status);
+		System.out.println("Response body: " + responseBody);
+
+		request.setAttribute("status", status);
+		request.setAttribute("responseBody", responseBody);
 		request.getRequestDispatcher("report.jsp").forward(request, response);
 	}
 }
