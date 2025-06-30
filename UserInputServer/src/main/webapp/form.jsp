@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ include file="include.jsp" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,7 +45,7 @@
     <label for="city">Your city:</label><br>
     <input type="text" id="city" name="city" required><br><br>
 
-    <input type="submit" value="Send">
+    <button type="submit">Send</button>
 </form>
 </body>
 </html>

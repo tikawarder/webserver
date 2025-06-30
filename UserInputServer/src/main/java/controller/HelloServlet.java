@@ -25,4 +25,6 @@ public class HelloServlet extends HttpServlet {
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/list.jsp");
 		dispatcher.forward(request, response);
 	}
+
+
 }

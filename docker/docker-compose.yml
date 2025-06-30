@@ -28,7 +28,7 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile_DatabaseServer
-    image: databaseserver:latest
+    image: database:latest
     depends_on:
       mysql_for_webserver:
         condition: service_healthy
