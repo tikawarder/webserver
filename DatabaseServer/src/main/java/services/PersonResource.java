@@ -1,8 +1,10 @@
 package services;
 
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import model.Person;
 
@@ -10,8 +12,7 @@ import java.util.List;
 
 @Path("/persons")
 public class PersonResource {
-	private EntityManagerFactory emf = Persistence.createEntityManagerFactory("MysqlPersistence");
-	private final PersonDao personDao = new PersonDao(emf);
+	private final PersonDao personDao = new PersonDao();
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

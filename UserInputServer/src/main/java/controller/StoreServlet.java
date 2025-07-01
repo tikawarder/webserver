@@ -22,16 +22,9 @@ public class StoreServlet extends HttpServlet {
 
 		LocalDate date = LocalDate.parse(stringLocalDate);
 
+		//this response can be used for checking the Rest communication
 		Response clientResponse = RestClientService.sendPersonToServer(name, date, city);
 
-		int status = clientResponse.getStatus();
-		String responseBody = clientResponse.readEntity(String.class);
-
-		System.out.println("Status: " + status);
-		System.out.println("Response body: " + responseBody);
-
-		request.setAttribute("status", status);
-		request.setAttribute("responseBody", responseBody);
 		request.getRequestDispatcher("report.jsp").forward(request, response);
 	}
 }

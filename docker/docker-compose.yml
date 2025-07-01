@@ -17,6 +17,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile_UserInputServer
+    image: userinput:latest
     depends_on:
       - database-server
     ports:
@@ -27,6 +28,7 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile_DatabaseServer
+    image: databaseserver:latest
     depends_on:
       mysql_for_webserver:
         condition: service_healthy

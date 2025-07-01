@@ -1,4 +1,3 @@
-git pull
 cd DatabaseServer
 mvn clean package
 cd ..

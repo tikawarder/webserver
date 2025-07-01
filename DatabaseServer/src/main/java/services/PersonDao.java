@@ -1,21 +1,16 @@
 package services;
 
+import controller.RestServerLauncher;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.TypedQuery;
 import model.Person;
 
 import java.util.List;
 
 public class PersonDao {
-	private EntityManagerFactory emFactory;
-
-	public PersonDao(EntityManagerFactory emFactory) {
-		this.emFactory = emFactory;
-	}
+	private final EntityManager entityManager = RestServerLauncher.getEntityManagerFactory().createEntityManager();
 
 	public void saveUser(Person person) {
-		EntityManager entityManager = emFactory.createEntityManager();
 		try {
 			entityManager.getTransaction().begin();
 			entityManager.persist(person);
@@ -29,16 +24,11 @@ public class PersonDao {
 	}
 
 	public List<Person> listUsers() {
-		EntityManager entityManager = emFactory.createEntityManager();
 		try {
 			TypedQuery<Person> query = entityManager.createQuery("SELECT p FROM Person p", Person.class);
 			return query.getResultList();
 		} finally {
 			entityManager.close();
 		}
-	}
-
-	public Person getPersonByName(String name) {
-		return new Person();
 	}
 }

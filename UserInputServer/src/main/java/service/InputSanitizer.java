@@ -13,4 +13,3 @@ public class InputSanitizer {
 			return StringEscapeUtils.escapeHtml4(input);
 		}
 }
-
