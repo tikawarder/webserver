@@ -1,80 +1,75 @@
-// src/components/InputForm.js
 import React, { useState } from 'react';
 
-function InputForm() {
-  // Állapot (state) a form adatok tárolására
+function InputForm({ onSubmissionSuccess }) {
   const [formData, setFormData] = useState({
     name: '',
-    birthDay: '', // Fontos, hogy a formátum illeszkedjen a Java LocalDate.parse-hoz!
+    birthDay: '',
     city: '',
   });
   const [submissionStatus, setSubmissionStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Az összes input mező értékének frissítése egyetlen eseménykezelővel
   const handleChange = (e) => {
     setFormData({
-      ...formData, // Megtartja a többi mező értékét
-      [e.target.name]: e.target.value, // Frissíti a változó nevét a "name" attribútum alapján
+      ...formData,
+      [e.target.name]: e.target.value,
     });
   };
 
-  // Aszinkron eseménykezelő a küldésre
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setSubmissionStatus('Küldés folyamatban...');
+    setSubmissionStatus('Sending is ongoing...');
 
     try {
-      // 1. POST kérés küldése a DatabaseServerre
-      // Útvonal: /api/persons (ez a proxy-n keresztül a http://localhost:8081/api/persons-ra megy)
+      // sending with POST
       const response = await fetch('/api/persons', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        // 2. A JS objektumot JSON stringgé alakítjuk küldés előtt
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        // A 200 OK vagy 204 No Content (ha void a POST) a sikeres válasz
-        setSubmissionStatus('Sikeresen mentve a DatabaseServerre!');
-        setFormData({ name: '', birthDay: '', city: '' }); // Form ürítése
+        setSubmissionStatus('Successfully sent, refreshing the list...');
+        setFormData({ name: '', birthDay: '', city: '' });
+
+        // Calling this callback, that refreshes the list in App.js
+        onSubmissionSuccess();
+
       } else {
-        // Hiba esetén megpróbáljuk kiolvasni a hibaüzenetet a válaszból
         const errorText = await response.text();
-        throw new Error(`Küldési hiba: ${response.status} - ${errorText}`);
+        throw new Error(`Error during sending: ${response.status} - ${errorText}`);
       }
 
     } catch (error) {
-      console.error('Küldés sikertelen:', error);
-      setSubmissionStatus(`Hiba a DatabaseServerrel való kommunikációban: ${error.message}`);
+      console.error('Post error:', error);
+      setSubmissionStatus(`Error when connecting to server: ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Felhasználó adatok felvitele</h2>
+    <div style={{ padding: '20px', border: '1px solid #eee', borderRadius: '8px' }}>
 
       <form onSubmit={handleSubmit}>
 
-        {/* Név mező */}
+        {/* name*/}
         <div style={{ marginBottom: '10px' }}>
-          <label htmlFor="name">Név:</label>
+          <label htmlFor="name">Name:</label>
           <input type="text" id="name" name="name"
-            value={formData.name} // Vezérelt (Controlled) komponens: érték a state-ből
-            onChange={handleChange} // Változáskor a state frissül
+            value={formData.name}
+            onChange={handleChange}
             required
             disabled={loading}
           />
         </div>
 
-        {/* Születési dátum mező */}
+        {/* birthday */}
         <div style={{ marginBottom: '10px' }}>
-          <label htmlFor="birthDay">Születési dátum:</label>
+          <label htmlFor="birthDay">Birth of date:</label>
           <input type="date" id="birthDay" name="birthDay"
             value={formData.birthDay}
             onChange={handleChange}
@@ -83,9 +78,9 @@ const handleSubmit = async (e) => {
           />
         </div>
 
-        {/* Város mező */}
+        {/* city */}
         <div style={{ marginBottom: '10px' }}>
-          <label htmlFor="city">Születési város:</label>
+          <label htmlFor="city">City of birth:</label>
           <input type="text" id="city" name="city"
             value={formData.city}
             onChange={handleChange}
@@ -94,12 +89,11 @@ const handleSubmit = async (e) => {
           />
         </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? 'Küldés...' : 'Adat Küldése a Java Backendnek'}
+        <button type="submit" disabled={loading} style={{ padding: '10px 15px', backgroundColor: loading ? '#ccc' : '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+          {loading ? 'Küldés...' : 'Adat Küldése'}
         </button>
       </form>
 
-      {/* Visszajelzés a felhasználónak */}
       {submissionStatus && <p style={{ marginTop: '15px', color: submissionStatus.includes('Hiba') ? 'red' : 'green' }}>{submissionStatus}</p>}
     </div>
   );

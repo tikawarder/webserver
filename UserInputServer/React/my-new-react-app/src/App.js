@@ -1,37 +1,65 @@
-// src/App.js (A JAVÍTOTT TARTALOM)
+import React, { useState, useEffect } from 'react';
 
-import React from 'react';
-// 1. Importáljuk a két komponensünket
-import UserList from './components/UserList';
+import MainLayout from './components/MainLayout';
+import WelcomePanel from './components/WelcomePanel';
 import InputForm from './components/InputForm';
+import UserList from './components/UserList';
+import PageCounter from './components/PageCounter';
+import Welcome from'./learn/Welcome';
 
 function App() {
+  // hooks for states
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchUsers = () => {
+    setLoading(true);
+    setError(null);
+
+    fetch('/api/persons')
+      .then(response => {
+        if (!response.ok) { throw new Error(`HTTP error: ${response.status}`); }
+        return response.json();
+      })
+      .then(data => {
+        setUsers(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError(err.message);
+        setLoading(false);
+      });
+  };
+
+  // at start, we fetch the users from database only once
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleSuccessSubmit = () => {
+    fetchUsers(); // after successfully submit new users we fetch all users
+  };
+
   return (
-    // A React komponens visszaadja a JSX-et (a tényleges megjelenítendő elemeket)
-    <div style={{
-        padding: '20px',
-        fontFamily: 'Arial, sans-serif',
-        // CSS Grid használata a 2 oszlopos elrendezéshez
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '40px',
-        maxWidth: '1200px',
-        margin: '0 auto'
-    }}>
+    <MainLayout
+        welcomePanel={<Welcome myFavoriteColor="orange" name ="Tomi" />}
+        formPanel={<InputForm onSubmissionSuccess={handleSuccessSubmit} />}
 
-      {/* Bal Oldali Panel: Az Űrlap */}
-      <div style={{ borderRight: '1px solid #ccc', paddingRight: '40px' }}>
-        <h2>Új felhasználó felvitele</h2>
-        <InputForm />
-      </div>
+        // 3. Lista panel (Adatokkal)
+        // Átadjuk a fetchUsers függvényt "onRefresh" néven
+              listPanel={
+                <UserList
+                    users={users}
+                    loading={loading}
+                    error={error}
+                    onRefresh={fetchUsers}
+                />
+              }
 
-      {/* Jobb Oldali Panel: A Lista */}
-      <div>
-        <h2>Felhasználók az Adatbázisból</h2>
-        <UserList />
-      </div>
-
-    </div>
+        // 4. Számláló panel
+        counterPanel={<PageCounter />}
+    />
   );
 }
 
