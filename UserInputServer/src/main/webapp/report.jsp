@@ -10,21 +10,13 @@
 <h2>Received data:</h2>
 
 <p><strong>Name:</strong> ${param.name}</p>
-<p><strong>Birth:</strong> ${param.birthdate}</p>
-<%
-    String birthDateStr = request.getParameter("birthdate");
-    int age = -1;
-    if (birthDateStr != null) {
-        java.time.LocalDate birthDate = java.time.LocalDate.parse(birthDateStr);
-        java.time.LocalDate now = java.time.LocalDate.now();
-        age = java.time.Period.between(birthDate, now).getYears();
-    }
-%>
-<p><strong>Age:</strong> <%= age %></p>
+<p id="birthDate"><strong>Birth:</strong> ${param.birthdate}</p>
+<p><strong>Age:</strong> <span id="ageResult">(calculating...)</span></p>
 <p><strong>City:</strong> ${param.city}</p>
 <br>
 <a href="form.jsp">They are stored in the database and this link returns you to a new input form</a>
 <br>
 <a href="index.jsp">If not you can call the welcome link here</a>
+    <script src="/jsDevelopment/age-calculator.js"></script>
 </body>
 </html>
