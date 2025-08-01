@@ -7,6 +7,21 @@
 <body>
     <button id="myBtn">Click me!</button>
     <p id="myPara">This is a paragraph.</p>
-    <script type="module" src="./jsDevelopment/export_from.js"></script>
+    <p id="myPara2">This is the second paragraph.</p>
+    <script>
+        const parag = document.querySelectorAll("p");
+        parag.forEach((p, index) => {
+            console.log(`Bekezdés ${index + 1}: ${p.textContent}`);
+        });
+
+        const button = document.querySelector("#myBtn");
+        button.addEventListener("click", () => {
+            console.log("Rámkattintottál!");
+        });
+
+        const text = document.querySelector("#myPara");
+        text.textContent = "new text";
+        text.style.color = "blue";
+    </script>
 </body>
 </html>
