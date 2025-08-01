@@ -47,3 +47,5 @@ Start:
 6, the Server receives the data and persist to the Mysql database
 
 7, the other direction of data happens when the UserInputServer asks all persons from the DatabaseServer
+
+8, Some js trials are in the application
