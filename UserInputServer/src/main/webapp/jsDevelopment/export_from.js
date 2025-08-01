@@ -1,21 +1,39 @@
-import {obj, func} from './learn.js'
-import doing from './learn.js'
+const fetchData = async () => {
+    console.log("várok?");
+    const res = await fetch('https://api.restful-api.dev/objects');
+    console.log("haladok");
+    const json = await res.json();
+    console.log(json);
+    console.log("haladok tovább");
+    return json;
+};
+//fetchData();
 
-window.color = "blue";
+fetchData()
+    .then(data => {
+        console.log(data);
+        console.log("Siker:", data);
+    })
+    .catch(error => {
+        console.error("Hibaliba:", error);
+    });
 
-document.getElementById("myPara").addEventListener("click", function() {
-    alert("Button was clicked!");
+// Promise példa: sikeres és sikertelen eset
+// Változó, ami meghatározza, hogy sikerüljön vagy ne
+const type = "hiba"; // vagy "siker"
+
+const p = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (type === "siker") {
+            resolve("Siker!");
+        } else {
+            reject("Hiba történt");
+        }
+    }, 1000);
 });
 
-obj.regularFunc();
-obj.arrowFunc();
-
-const counter1 = doing();  // létrehoz egy új számlálót
-
-console.log(counter1()); // 1
-console.log(counter1()); // 2
-console.log(counter1()); // 3
-
-const counter2 = doing();  // új, különálló számláló
-
-console.log(counter2()); // 1
+p.then(result => {
+    console.log("✅", result); // ha sikerült
+}).catch(error => {
+    console.error("❌", error); // ha hiba történt
+});
