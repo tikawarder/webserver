@@ -2,26 +2,24 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>JS Test</title>
+    <title>React Test</title>
+<!--    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>-->
+<!--    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>-->
+<!--    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>-->
 </head>
 <body>
+    <div id="root"> original text</div>
     <button id="myBtn">Click me!</button>
     <p id="myPara">This is a paragraph.</p>
     <p id="myPara2">This is the second paragraph.</p>
-    <script>
-        const parag = document.querySelectorAll("p");
-        parag.forEach((p, index) => {
-            console.log(`Bekezdés ${index + 1}: ${p.textContent}`);
-        });
+<!--    <script type="text/babel">-->
+<!--        function HelloWorld() {-->
+<!--            return <h1>Hello, React from CDN!</h1>;-->
+<!--        }-->
 
-        const button = document.querySelector("#myBtn");
-        button.addEventListener("click", () => {
-            console.log("Rámkattintottál!");
-        });
-
-        const text = document.querySelector("#myPara");
-        text.textContent = "new text";
-        text.style.color = "blue";
-    </script>
+<!--        const root = ReactDOM.createRoot(document.getElementById('root'));-->
+<!--        root.render(<HelloWorld />);-->
+<!--    </script>-->
+    <script type="module" src="./jsDevelopment/react.js"></script>
 </body>
 </html>
