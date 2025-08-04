@@ -9,5 +9,7 @@
         <button onclick="updateTime()">Refresh the time</button>
         <br>
         <a href="hello">Are you ready to store some data?</a>
+        <br>
+        <a href="react-app/index.html">...or you can try the React app here</a>
     </body>
 </html>
