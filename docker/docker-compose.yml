@@ -13,14 +13,24 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  tomcat:
+  userinput-server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_UserInputServer
+    image: userinput:latest
+    depends_on:
+      - database-server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../UserInputServer/target/webapp.war:/usr/local/tomcat/webapps/webapp.war
+  database-server:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile_DatabaseServer
+    image: databaseserver:latest
     depends_on:
       mysql_for_webserver:
         condition: service_healthy
     ports:
-      - "8080:8080"
-    volumes:
-      - ../JavaServletApi/target/webapp.war:/usr/local/tomcat/webapps/webapp.war
+      - "8081:8081"

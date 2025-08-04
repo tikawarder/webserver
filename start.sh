@@ -1,5 +1,7 @@
-git pull
-cd JavaServletApi
+cd DatabaseServer
+mvn clean package
+cd ..
+cd UserInputServer
 mvn clean package
 cd ..
 cd docker

@@ -1,15 +1,14 @@
 package controller;
 
-import utils.ContextListener;
-import model.PersonDao;
-import model.Person;
-
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import model.Person;
+import service.RestClientService;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,8 +17,9 @@ import java.util.List;
 public class HelloServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		PersonDao dao = new PersonDao(ContextListener.getEntityManagerFactory());
-		List<Person> persons = dao.listUsers();
+
+		List<Person> persons = RestClientService.getPersons();
+
 		request.setAttribute("persons", persons);
 
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/list.jsp");

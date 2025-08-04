@@ -27,17 +27,23 @@ My detailed plan with milestones:
 Preparing:
 1, use java 17
 2, install Docker CLI
-3, Git installed
+3, Git has to be installed
 
 Start:
 
 1, Clone this repository
 
-2,type ./start.sh to start the deploy process
+2, type ./start.sh to start the deploy process
 
-    - it will start a mysql docker container
-    - deploys the java code with a built-in tomcat server
+    - it will start 3 containers (Mysql database, UserInputServer, DatabaseServer)
+    - starts the UserInputServer with the built-in tomcat server
 
 3, visit localhost:8080/webapp/
 
-                                                  
+4, fill the input form, where the data acceptance will be checked by javascript and later sanitized by the server
+
+5, then person object will be sent to the DataBaseServer with Rest API
+
+6, the Server receives the data and persist to the Mysql database
+
+7, the other direction of data happens when the UserInputServer asks all persons from the DatabaseServer
