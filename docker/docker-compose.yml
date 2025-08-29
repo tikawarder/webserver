@@ -1,6 +1,7 @@
 services:
   mysql_for_webserver:
     image: mysql:8.0
+    restart: unless-stopped
     container_name: mysql_for_webserver
     ports:
       - "3307:3306"
