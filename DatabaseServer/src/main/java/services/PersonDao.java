@@ -10,12 +10,11 @@ import java.util.List;
 public class PersonDao {
 	private final EntityManager entityManager = RestServerLauncher.getEntityManagerFactory().createEntityManager();
 
-	public Person saveUser(Person person) {
+	public void saveUser(Person person) {
 		try {
 			entityManager.getTransaction().begin();
 			entityManager.persist(person);
 			entityManager.getTransaction().commit();
-			return person;
 		} catch (Exception ex) {
 			entityManager.getTransaction().rollback();
 			throw ex;
@@ -24,12 +23,11 @@ public class PersonDao {
 		}
 	}
 
-	public List<Person> getPersonsByName(String name) {
+	public Person getPersonByName(String name) {
 		try {
-			String unsafeName = "%" + name + "%";
-			String unsafeJpql = "SELECT p FROM Person p WHERE p.name LIKE '" + unsafeName + "'";
-			TypedQuery<Person> query = entityManager.createQuery(unsafeJpql, Person.class);
-			return query.getResultList();
+			TypedQuery<Person> query = entityManager.createQuery("SELECT p FROM Person p WHERE p.name = :name", Person.class);
+			query.setParameter("name", name);
+			return query.getSingleResult();
 		} finally {
 			entityManager.close();
 		}
