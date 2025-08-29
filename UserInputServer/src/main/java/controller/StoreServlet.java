@@ -17,9 +17,9 @@ import jakarta.ws.rs.core.Response;
 public class StoreServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		String name =  InputSanitizer.sanitize(request.getParameter("name"));
-		String stringLocalDate = InputSanitizer.sanitize(request.getParameter("birthdate"));
-		String city =  InputSanitizer.sanitize(request.getParameter("city"));
+		String name =  request.getParameter("name");
+		String stringLocalDate = request.getParameter("birthdate");
+		String city =  request.getParameter("city");
 
 		LocalDate date = LocalDate.parse(stringLocalDate);
 

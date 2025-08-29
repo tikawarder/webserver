@@ -20,6 +20,9 @@ My detailed plan with milestones:
 4, Frontend basics.                               - develope an easy ui with html, css and javascript.
                                                   - start some basic React to learn
 
+extra: Learn vulnerabilities                      - add a commit that introduce a security issue
+                                                  - on the second commit, solve it
+
 5, Spring Boot                                    - Implement the above topics into Spring Boot. Use Spring MVC and other functions.
 
 6, Google Cloud Privider (GCP)                    - Move the project to GCP
@@ -40,7 +43,9 @@ Start:
 
 3, visit localhost:8080/webapp/
 
-4, fill the input form, where the data acceptance will be checked by javascript and later sanitized by the server
+4, STORED-XSS: fill the input form, insert a text (executable script), like this:
+
+     <script>alert("I got your cookies: " + document.cookie);</script>
 
 5, then person object will be sent to the DataBaseServer with Rest API
 
