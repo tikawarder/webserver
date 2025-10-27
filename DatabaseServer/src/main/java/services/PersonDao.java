@@ -26,9 +26,9 @@ public class PersonDao {
 
 	public List<Person> getPersonsByName(String name) {
 		try {
-			String searchPattern = "%" + name + "%";
-			TypedQuery<Person> query = entityManager.createQuery("SELECT p FROM Person p WHERE p.name LIKE :namePattern", Person.class);
-			query.setParameter("namePattern", searchPattern);
+			String unsafeName = "%" + name + "%";
+			String unsafeJpql = "SELECT p FROM Person p WHERE p.name LIKE '" + unsafeName + "'";
+			TypedQuery<Person> query = entityManager.createQuery(unsafeJpql, Person.class);
 			return query.getResultList();
 		} finally {
 			entityManager.close();
