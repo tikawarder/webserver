@@ -23,11 +23,12 @@ public class PersonDao {
 		}
 	}
 
-	public Person getPersonByName(String name) {
+	public List<Person> getPersonsByName(String name) {
 		try {
-			TypedQuery<Person> query = entityManager.createQuery("SELECT p FROM Person p WHERE p.name = :name", Person.class);
-			query.setParameter("name", name);
-			return query.getSingleResult();
+			String searchPattern = "%" + name + "%";
+			TypedQuery<Person> query = entityManager.createQuery("SELECT p FROM Person p WHERE p.name LIKE :namePattern", Person.class);
+			query.setParameter("namePattern", searchPattern);
+			return query.getResultList();
 		} finally {
 			entityManager.close();
 		}

@@ -19,8 +19,8 @@ public class PersonResource {
 	@GET
 	@Path("/{name}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Person getPersonByName(@PathParam("name") String name) {
-		return personDao.getPersonByName(name);
+	public List<Person> getPersonsByName(@PathParam("name") String name) {
+		return personDao.getPersonsByName(name);
 	}
 
 	@POST
