@@ -1,0 +1,11 @@
+{
+  "name": "maven-js-integration",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "crypto-js": "^4.2.0"
+  },
+  "scripts": {
+    "build": "mkdir -p src/main/webapp/js/dist && cp node_modules/crypto-js/crypto-js.js src/main/webapp/js/dist/crypto-js.js"
+  }
+}
