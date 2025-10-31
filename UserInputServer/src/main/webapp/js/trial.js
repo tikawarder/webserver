@@ -3,7 +3,7 @@
     var a = 10;
 })();
 
-greet(); // működik!
+greet();
 
 function greet() {
     console.log("Hello!");
