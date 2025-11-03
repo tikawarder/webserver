@@ -1,19 +1,17 @@
-function showWelcomeMessage() {
+import * as CryptoJS from 'crypto-js';
+
+export function showWelcomeMessage() {
     alert("Welcome to the JSP-based web app!");
 }
 
-function updateTime() {
+export function updateTime() {
     const el = document.getElementById("currentTime");
     el.innerText = new Date().toLocaleTimeString();
 }
 
-function encryptData(message, key) {
-    // 1. A CryptoJS objektum használata (feltételezi, hogy a crypto-js.js már betöltődött)
+export function encryptData(message, key) {
     const encrypted = CryptoJS.AES.encrypt(message, key).toString();
-    alert("Eredeti üzenet: " + message);
-    alert("Titkosított üzenet: " + encrypted);
+    alert("Original message: " + message);
+    alert("Encrypted message: " + encrypted);
     return encrypted;
 }
-
-// Példa hívás:
-// encryptData("Szeretném ezt titkosítani", "mySecretKey");
