@@ -7,3 +7,5 @@ out/
 
 **/target/
 /UserInputServer/react-app_files/
+/UserInputServer/node/
+/UserInputServer/node_modules/
