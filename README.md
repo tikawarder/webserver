@@ -52,3 +52,5 @@ Start:
 
 to run the React developer server go to UserInputServer/React/my-new-react-app and type this: 
 npm start
+
+You can check the new developer React app here: localhost:3000

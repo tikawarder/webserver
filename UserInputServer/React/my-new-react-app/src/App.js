@@ -1,63 +1,36 @@
-// src/App.js
+// src/App.js (A JAVÍTOTT TARTALOM)
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+// 1. Importáljuk a két komponensünket
+import UserList from './components/UserList';
+import InputForm from './components/InputForm';
 
 function App() {
-  const [backendResponse, setBackendResponse] = useState("Adat kérése a Java szervertől...");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch('/api/persons')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP hiba! Státusz: ${response.status}`);
-        }
-        // **********************************************
-        // VÁLTOZÁS: response.json() használata
-        return response.json();
-        // **********************************************
-      })
-      .then(data => {
-        // 1. Átalakítjuk az objektumot olvasható formába (pl. Stringify)
-        // 2. Különösen keressük az adatban lévő kulcsokat a szebb megjelenítéshez
-
-        let displayMessage = JSON.stringify(data, null, 2); // Gyönyörű formázott JSON
-
-        // Ha a JSON tartalmaz "message" vagy "status" mezőt, azt használjuk
-        if (data && (data.message || data.status)) {
-            displayMessage = `Sikeres kapcsolat. Válasz: ${data.message || data.status}`;
-        }
-
-        setBackendResponse(displayMessage);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error("API hiba történt:", error);
-        setBackendResponse(`HIBA a kapcsolódáskor: ${error.message}. Ellenőrizd a Tomcat szervert!`);
-        setLoading(false);
-      });
-  }, []);
-
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>React és Java API Teszt (JSON Kezelés)</h1>
-      <p>Hívott végpont a proxy-n keresztül: <code>/api/persons</code></p>
-      <hr />
+    // A React komponens visszaadja a JSX-et (a tényleges megjelenítendő elemeket)
+    <div style={{
+        padding: '20px',
+        fontFamily: 'Arial, sans-serif',
+        // CSS Grid használata a 2 oszlopos elrendezéshez
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '40px',
+        maxWidth: '1200px',
+        margin: '0 auto'
+    }}>
 
-      <h2>Eredmény:</h2>
-      {loading ? (
-        <p>Betöltés...</p>
-      ) : (
-        <pre style={{
-          padding: '10px',
-          border: '1px solid',
-          backgroundColor: '#f7f7f7',
-          color: backendResponse.includes('HIBA') ? 'red' : 'green',
-          whiteSpace: 'pre-wrap' // Hosszabb szövegek tördeléséhez
-        }}>
-          {backendResponse}
-        </pre>
-      )}
+      {/* Bal Oldali Panel: Az Űrlap */}
+      <div style={{ borderRight: '1px solid #ccc', paddingRight: '40px' }}>
+        <h2>Új felhasználó felvitele</h2>
+        <InputForm />
+      </div>
+
+      {/* Jobb Oldali Panel: A Lista */}
+      <div>
+        <h2>Felhasználók az Adatbázisból</h2>
+        <UserList />
+      </div>
+
     </div>
   );
 }
