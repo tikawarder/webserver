@@ -47,3 +47,8 @@ Start:
 6, the Server receives the data and persist to the Mysql database
 
 7, the other direction of data happens when the UserInputServer asks all persons from the DatabaseServer
+
+-----
+
+to run the React developer server go to UserInputServer/React/my-new-react-app and type this: 
+npm start

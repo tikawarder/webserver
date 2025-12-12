@@ -1,36 +1,65 @@
-// my-frontend/src/App.js
+// src/App.js
 
-import React, { useState } from 'react'; // 1. Beimportáljuk a useState hookot
+import React, { useState, useEffect } from 'react';
 
-// A Komponens definiálása (függvény-komponens)
-function Counter() {
-  // 2. State (állapot) definiálása: 
-  // 'count' az aktuális érték, 'setCount' a függvény az érték módosításához, 
-  // a kezdőérték 0.
-  const [count, setCount] = useState(0);
+function App() {
+  const [backendResponse, setBackendResponse] = useState("Adat kérése a Java szervertől...");
+  const [loading, setLoading] = useState(true);
 
-  // Eseménykezelő függvény a növeléshez
-  const increment = () => {
-    // 3. Az állapot frissítése. 
-    // A React tudja, hogy a "count" megváltozott, és automatikusan frissíti a felületet.
-    setCount(count + 1);
-  };
+  useEffect(() => {
+    fetch('/api/persons')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP hiba! Státusz: ${response.status}`);
+        }
+        // **********************************************
+        // VÁLTOZÁS: response.json() használata
+        return response.json();
+        // **********************************************
+      })
+      .then(data => {
+        // 1. Átalakítjuk az objektumot olvasható formába (pl. Stringify)
+        // 2. Különösen keressük az adatban lévő kulcsokat a szebb megjelenítéshez
+
+        let displayMessage = JSON.stringify(data, null, 2); // Gyönyörű formázott JSON
+
+        // Ha a JSON tartalmaz "message" vagy "status" mezőt, azt használjuk
+        if (data && (data.message || data.status)) {
+            displayMessage = `Sikeres kapcsolat. Válasz: ${data.message || data.status}`;
+        }
+
+        setBackendResponse(displayMessage);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error("API hiba történt:", error);
+        setBackendResponse(`HIBA a kapcsolódáskor: ${error.message}. Ellenőrizd a Tomcat szervert!`);
+        setLoading(false);
+      });
+  }, []);
 
   return (
-    <div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '5px' }}>
-      <h1>React Számláló</h1>
-      
-      {/* 4. Az aktuális állapot megjelenítése */}
-      <p>Az aktuális érték: <strong>{count}</strong></p>
-      
-      {/* 5. A gomb eseménykezelője: a "increment" függvényt hívja meg */}
-      <button onClick={increment} 
-              style={{ padding: '10px 20px', fontSize: '16px', cursor: 'pointer' }}>
-        Kattints a növeléshez
-      </button>
+    <div style={{ padding: '20px' }}>
+      <h1>React és Java API Teszt (JSON Kezelés)</h1>
+      <p>Hívott végpont a proxy-n keresztül: <code>/api/persons</code></p>
+      <hr />
+
+      <h2>Eredmény:</h2>
+      {loading ? (
+        <p>Betöltés...</p>
+      ) : (
+        <pre style={{
+          padding: '10px',
+          border: '1px solid',
+          backgroundColor: '#f7f7f7',
+          color: backendResponse.includes('HIBA') ? 'red' : 'green',
+          whiteSpace: 'pre-wrap' // Hosszabb szövegek tördeléséhez
+        }}>
+          {backendResponse}
+        </pre>
+      )}
     </div>
   );
 }
 
-// Exportáljuk a komponenst, hogy a projekt többi része használhassa
-export default Counter;
+export default App;
