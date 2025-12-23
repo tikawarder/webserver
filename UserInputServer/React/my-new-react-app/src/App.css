@@ -2,7 +2,6 @@
     font-family: Arial, sans-serif;
     height: 100vh;
     display: grid;
-    /* Grid beállítás: 2 egyenlő oszlop és 2 egyenlő sor */
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
     gap: 10px;
@@ -48,8 +47,8 @@
 
 .panel-list {
     grid-area: 2 / 1;
-    overflow-y: auto; /* Ha hosszú a lista, lehessen görgetni */
-    align-items: flex-start; /* A lista tetejéről induljon */
+    overflow-y: auto;
+    align-items: flex-start;
 }
 
 .panel-counter {
@@ -60,4 +59,67 @@
     font-size: 3em;
     font-weight: bold;
     color: #ffc107;
+}
+.user-list-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.user-list-header h2 {
+    margin: 0;
+}
+
+.refresh-button {
+    padding: 5px 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.refresh-button:hover:not(:disabled) {
+    background-color: #218838;
+}
+
+.refresh-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.scrollable-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.error-message {
+    color: red;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+.user-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    line-height: 1.6;
+}
+.user-card strong {
+    color: #555;
+    margin-right: 5px;
 }

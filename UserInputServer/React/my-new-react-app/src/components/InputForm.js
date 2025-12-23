@@ -1,102 +1,65 @@
 import React, { useState } from 'react';
+import './css/inputForm.css';
 
 function InputForm({ onSubmissionSuccess }) {
-  const [formData, setFormData] = useState({
-    name: '',
-    birthDay: '',
-    city: '',
-  });
-  const [submissionStatus, setSubmissionStatus] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setSubmissionStatus('Sending is ongoing...');
+
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
 
     try {
-      // sending with POST
       const response = await fetch('/api/persons', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
-        setSubmissionStatus('Successfully sent, refreshing the list...');
-        setFormData({ name: '', birthDay: '', city: '' });
-
-        // Calling this callback, that refreshes the list in App.js
+        e.currentTarget.reset();
         onSubmissionSuccess();
-
-      } else {
-        const errorText = await response.text();
-        throw new Error(`Error during sending: ${response.status} - ${errorText}`);
       }
-
     } catch (error) {
-      console.error('Post error:', error);
-      setSubmissionStatus(`Error when connecting to server: ${error.message}`);
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: '20px', border: '1px solid #eee', borderRadius: '8px' }}>
+             <div className="form-container">
 
-      <form onSubmit={handleSubmit}>
+               <form onSubmit={handleSubmit}>
 
-        {/* name*/}
-        <div style={{ marginBottom: '10px' }}>
-          <label htmlFor="name">Name:</label>
-          <input type="text" id="name" name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-        </div>
+                 <div className="field-group">
+                   <label>Name:</label>
+                   <input type="text" name="name" required />
+                 </div>
 
-        {/* birthday */}
-        <div style={{ marginBottom: '10px' }}>
-          <label htmlFor="birthDay">Birth of date:</label>
-          <input type="date" id="birthDay" name="birthDay"
-            value={formData.birthDay}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-        </div>
+                 <div className="field-group">
+                   <label>Date of Birth:</label>
+                   <input type="date" name="birthDay" required />
+                 </div>
 
-        {/* city */}
-        <div style={{ marginBottom: '10px' }}>
-          <label htmlFor="city">City of birth:</label>
-          <input type="text" id="city" name="city"
-            value={formData.city}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-        </div>
+                 <div className="field-group">
+                   <label>City:</label>
+                   <input type="text" name="city" required />
+                 </div>
 
-        <button type="submit" disabled={loading} style={{ padding: '10px 15px', backgroundColor: loading ? '#ccc' : '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-          {loading ? 'Küldés...' : 'Adat Küldése'}
-        </button>
-      </form>
+                 <button
+                   type="submit"
+                   className="submit-button"
+                   disabled={loading}
+                 >
+                   {loading ? 'Sending...' : 'Saving data'}
+                 </button>
 
-      {submissionStatus && <p style={{ marginTop: '15px', color: submissionStatus.includes('Hiba') ? 'red' : 'green' }}>{submissionStatus}</p>}
-    </div>
-  );
+               </form>
+             </div>
+           );
 }
 
 export default InputForm;

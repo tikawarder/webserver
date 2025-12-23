@@ -5,7 +5,6 @@ import WelcomePanel from './components/WelcomePanel';
 import InputForm from './components/InputForm';
 import UserList from './components/UserList';
 import PageCounter from './components/PageCounter';
-import Welcome from'./learn/Welcome';
 
 function App() {
   // hooks for states
@@ -43,21 +42,16 @@ function App() {
 
   return (
     <MainLayout
-        welcomePanel={<Welcome myFavoriteColor="orange" name ="Tomi" />}
+        welcomePanel={<WelcomePanel/>}
         formPanel={<InputForm onSubmissionSuccess={handleSuccessSubmit} />}
-
-        // 3. Lista panel (Adatokkal)
-        // Átadjuk a fetchUsers függvényt "onRefresh" néven
-              listPanel={
-                <UserList
-                    users={users}
-                    loading={loading}
-                    error={error}
-                    onRefresh={fetchUsers}
-                />
-              }
-
-        // 4. Számláló panel
+        listPanel={
+          <UserList
+            users={users}
+            loading={loading}
+            error={error}
+            onRefresh={fetchUsers}
+          />
+         }
         counterPanel={<PageCounter />}
     />
   );
