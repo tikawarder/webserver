@@ -1,8 +1,2 @@
-cd DatabaseServer
-mvn clean package
-cd ..
-cd UserInputServer
-mvn clean package
-cd ..
-cd docker
-docker compose up --build
+mvn -f DatabaseServer/pom.xml clean package
+docker compose -f docker/docker-compose.yml up --build

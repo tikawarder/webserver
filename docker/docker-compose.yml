@@ -15,15 +15,13 @@ services:
       retries: 5
   userinput-server:
     build:
-      context: ../
-      dockerfile: docker/Dockerfile_UserInputServer
+      context: ../UserInputServer
+      dockerfile: ../docker/Dockerfile_UserInputServer
     image: userinput:latest
     depends_on:
       - database-server
     ports:
-      - "8080:8080"
-    volumes:
-      - ../UserInputServer/src/main/webapp/jsDevelopment:/usr/local/tomcat/webapps/jsDevelopment
+      - "8080:80"
   database-server:
     build:
       context: ../

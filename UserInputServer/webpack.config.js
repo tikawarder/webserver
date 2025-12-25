@@ -1,15 +1,16 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/main/webapp/js/main.js',
+  entry: './src/index.js',
+
   output: {
-    path: path.resolve(__dirname, 'src/main/webapp/js/dist'),
+    path: path.resolve(__dirname, 'build'),
     filename: 'bundle.js',
     library: 'MyApp',
     libraryTarget: 'umd'
   },
   resolve: {
-    extensions: ['.js']
+    extensions: ['.js', '.jsx']
   },
-  mode: 'production' // Minified output
+  mode: 'production'
 };
