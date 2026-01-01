@@ -1,9 +1,9 @@
-package controller;
+package databaseserver.controller;
 
-import model.Person;
+import databaseserver.model.Person;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import services.PersonRepository;
+import databaseserver.repository.PersonRepository;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import java.util.List;
 public class PersonController {
 
     @Autowired
-    private PersonRepository personRepository; // A Repository injektálása
+    private PersonRepository personRepository;
 
     @GetMapping
     public List<Person> getAllPersons() {

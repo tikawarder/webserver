@@ -1,4 +1,4 @@
-package model;
+package databaseserver.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

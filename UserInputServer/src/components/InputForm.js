@@ -3,27 +3,45 @@ import './css/inputForm.css';
 
 function InputForm({ onSubmissionSuccess }) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
 
     try {
+      const token = localStorage.getItem('jwtToken');
+
+      if (!token) {
+         throw new Error('You must be logged in to save data!');
+      }
+
       const response = await fetch('/api/persons', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+         'Content-Type': 'application/json',
+         'Authorization': 'Bearer ' + token
+         },
         body: JSON.stringify(data),
       });
 
-      if (response.ok) {
-        e.currentTarget.reset();
-        onSubmissionSuccess();
+      if (response.status === 403 || response.status === 401) {
+         throw new Error('Access denied. Please login!');
       }
-    } catch (error) {
-      console.error(error);
+
+      if (!response.ok) {
+              throw new Error(`Server error: ${response.status}`);
+            }
+
+      e.currentTarget.reset();
+      onSubmissionSuccess();
+
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -31,8 +49,13 @@ function InputForm({ onSubmissionSuccess }) {
 
   return (
              <div className="form-container">
-
                <form onSubmit={handleSubmit}>
+
+                 {error && (
+                             <div style={{ color: 'red', marginBottom: '10px', fontWeight: 'bold' }}>
+                                 {error}
+                             </div>
+                          )}
 
                  <div className="field-group">
                    <label>Name:</label>

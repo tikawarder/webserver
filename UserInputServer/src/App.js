@@ -16,8 +16,19 @@ function App() {
     setLoading(true);
     setError(null);
 
-    fetch('/api/persons')
+const token = localStorage.getItem('jwtToken');
+fetch('/api/persons', {
+      method: 'GET', // Bár a GET az alapértelmezett, érdemes kiírni
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token // Itt küldjük a "belépőkártyát"
+      }
+    })
       .then(response => {
+        // Ha lejárt a token vagy érvénytelen (403), kezelnünk kell
+        if (response.status === 403 || response.status === 401) {
+            throw new Error('Access denied. Please login!');
+        }
         if (!response.ok) { throw new Error(`HTTP error: ${response.status}`); }
         return response.json();
       })
@@ -30,7 +41,6 @@ function App() {
         setLoading(false);
       });
   };
-
   // at start, we fetch the users from database only once
   useEffect(() => {
     fetchUsers();
