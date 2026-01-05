@@ -7,7 +7,6 @@ import UserList from './components/UserList';
 import PageCounter from './components/PageCounter';
 
 function App() {
-  // hooks for states
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -16,16 +15,14 @@ function App() {
     setLoading(true);
     setError(null);
 
-const token = localStorage.getItem('jwtToken');
 fetch('/api/persons', {
-      method: 'GET', // Bár a GET az alapértelmezett, érdemes kiírni
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token // Itt küldjük a "belépőkártyát"
-      }
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include'
     })
       .then(response => {
-        // Ha lejárt a token vagy érvénytelen (403), kezelnünk kell
         if (response.status === 403 || response.status === 401) {
             throw new Error('Access denied. Please login!');
         }

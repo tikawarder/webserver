@@ -7,26 +7,21 @@ function InputForm({ onSubmissionSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const form = e.currentTarget;
+
     setLoading(true);
     setError(null);
 
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
 
     try {
-      const token = localStorage.getItem('jwtToken');
-
-      if (!token) {
-         throw new Error('You must be logged in to save data!');
-      }
-
       const response = await fetch('/api/persons', {
         method: 'POST',
         headers: {
-         'Content-Type': 'application/json',
-         'Authorization': 'Bearer ' + token
-         },
+         'Content-Type': 'application/json'},
         body: JSON.stringify(data),
+        credentials: 'include'
       });
 
       if (response.status === 403 || response.status === 401) {
@@ -37,7 +32,7 @@ function InputForm({ onSubmissionSuccess }) {
               throw new Error(`Server error: ${response.status}`);
             }
 
-      e.currentTarget.reset();
+      form.reset();
       onSubmissionSuccess();
 
     } catch (err) {
