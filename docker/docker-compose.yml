@@ -16,12 +16,15 @@ services:
   userinput-server:
     build:
       context: ../UserInputServer
-      dockerfile: ../docker/Dockerfile_UserInputServer
+      dockerfile: ../docker/Dockerfile_UserInputServer_Dev
     image: userinput:latest
     depends_on:
       - database-server
+    volumes:
+      - ../UserInputServer:/app
+      - /app/node_modules
     ports:
-      - "8080:80"
+      - "8080:3000"
   database-server:
     build:
       context: ../
@@ -32,3 +35,6 @@ services:
         condition: service_healthy
     ports:
       - "8081:8081"
+      - "5005:5005"
+    environment:
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
