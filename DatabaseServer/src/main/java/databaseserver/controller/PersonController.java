@@ -1,6 +1,7 @@
 package databaseserver.controller;
 
 import databaseserver.model.Person;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import databaseserver.repository.PersonRepository;
@@ -20,7 +21,7 @@ public class PersonController {
     }
 
     @PostMapping
-    public Person createPerson(@RequestBody Person person) {
+    public Person createPerson(@Valid @RequestBody Person person) {
         return personRepository.save(person);
     }
 }

@@ -1,6 +1,9 @@
 package databaseserver.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,8 +21,13 @@ public class Person {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
+	@NotBlank(message = "'name' does not be empty.")
+	@Size(min = 2, max = 30)
 	private String name;
 	@Column(name = "birthDay")
+	@Past
 	private LocalDate birthDay;
+	@NotBlank(message = "'city' does not be empty.")
+	@Size(min = 2, max = 30)
 	private String city;
 }

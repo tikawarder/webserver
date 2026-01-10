@@ -2,6 +2,7 @@ package databaseserver.controller;
 
 import databaseserver.model.LoginRequest;
 import databaseserver.services.security.JwtUtil;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,7 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @PostMapping
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody LoginRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())

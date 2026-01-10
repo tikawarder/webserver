@@ -54,3 +54,17 @@ Start:
 npm start
 
 9, You can check the developer React app here: localhost:3000
+
+10, Spring next tasks:
+1. Validation
+2. Global Exception Handling
+3. Data Transfer Object
+4. Pagination & Sorting
+5. Unit & Integration Testing
+6. Swagger / OpenAPI
+----
+7. Spring Boot Actuator
+8. Spring Profiles
+9. @Scheduled
+10. Spring Events
+11. Caching (@Cacheable)
