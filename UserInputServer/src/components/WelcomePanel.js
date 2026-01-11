@@ -4,11 +4,13 @@ function WelcomePanel() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [status, setStatus] = useState('');
+    const [fieldErrors, setFieldErrors] = useState({});
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const handleSubmit = async (event) => {
         event.preventDefault(); // Prevent page reload
         setStatus('Sending...');
+        setFieldErrors({});
 
         // Ensure keys match the Java DTO field names exactly
         const loginData = {
@@ -29,6 +31,12 @@ function WelcomePanel() {
             if (response.ok) {
                 setStatus('Login successful! Cookie set.');
                 setIsLoggedIn(true);
+                setFieldErrors({});
+
+            } else if (response.status === 400) {
+                            const errorData = await response.json();
+                            setFieldErrors(errorData);
+                            setStatus('Wrong input data, please modify.');
             } else {
                 setStatus('Login failed: Invalid credentials.');
             }
@@ -48,6 +56,7 @@ function WelcomePanel() {
                     setStatus('');
                     setUsername('');
                     setPassword('');
+                    setFieldErrors({});
                 }}>Logout</button>
             </div>
         );
@@ -66,9 +75,15 @@ function WelcomePanel() {
                         id="username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        required
-                        style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+//                        required
+                        style={{ width: '100%', padding: '8px', marginTop: '5px', border: fieldErrors.username ? '2px solid red' : '1px solid #ccc' }}
+
                     />
+                    {fieldErrors.username && (
+                                            <span style={{ color: 'red', fontSize: '0.9em' }}>
+                                                {fieldErrors.username}
+                                            </span>
+                                        )}
                 </div>
                 <div style={{ marginBottom: '10px' }}>
                     <label htmlFor="password">Password: </label>
@@ -77,9 +92,14 @@ function WelcomePanel() {
                         id="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        required
-                        style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+//                        required
+                        style={{ width: '100%', padding: '8px', marginTop: '5px', border: fieldErrors.password ? '2px solid red' : '1px solid #ccc' }}
                     />
+                    {fieldErrors.password && (
+                                            <span style={{ color: 'red', fontSize: '0.9em' }}>
+                                                {fieldErrors.password}
+                                            </span>
+                                        )}
                 </div>
                 <button type="submit" style={{ padding: '10px 20px', cursor: 'pointer' }}>Login</button>
             </form>

@@ -3,14 +3,16 @@ import './css/inputForm.css';
 
 function InputForm({ onSubmissionSuccess }) {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [globalError, setGlobalError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
 
     setLoading(true);
-    setError(null);
+    setGlobalError(null);
+    setFieldErrors({});
 
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
@@ -24,9 +26,15 @@ function InputForm({ onSubmissionSuccess }) {
         credentials: 'include'
       });
 
-      if (response.status === 403 || response.status === 401) {
+      if (response.status === 401 || response.status === 403) {
          throw new Error('Access denied. Please login!');
       }
+
+      if (response.status === 400) {
+                const errorData = await response.json();
+                setFieldErrors(errorData);
+                return;
+            }
 
       if (!response.ok) {
               throw new Error(`Server error: ${response.status}`);
@@ -36,7 +44,7 @@ function InputForm({ onSubmissionSuccess }) {
       onSubmissionSuccess();
 
     } catch (err) {
-      setError(err.message);
+      setGlobalError(err.message);
     } finally {
       setLoading(false);
     }
@@ -46,25 +54,28 @@ function InputForm({ onSubmissionSuccess }) {
              <div className="form-container">
                <form onSubmit={handleSubmit}>
 
-                 {error && (
-                             <div style={{ color: 'red', marginBottom: '10px', fontWeight: 'bold' }}>
-                                 {error}
-                             </div>
+                 {globalError && (
+                              <div style={{ color: 'red', marginBottom: '15px', padding: '10px', backgroundColor: '#ffe6e6', borderRadius: '5px' }}>
+                                  ⚠️ {globalError}
+                              </div>
                           )}
 
                  <div className="field-group">
                    <label>Name:</label>
-                   <input type="text" name="name" required />
+                   <input type="text" name="name"/>
+                   {fieldErrors.name && <span style={{color: 'red', fontSize: '0.8rem'}}>{fieldErrors.name}</span>}
                  </div>
 
                  <div className="field-group">
                    <label>Date of Birth:</label>
-                   <input type="date" name="birthDay" required />
+                   <input type="date" name="birthDay"/>
+                   {fieldErrors.birthDay && <span style={{color: 'red', fontSize: '0.8rem'}}>{fieldErrors.birthDay}</span>}
                  </div>
 
                  <div className="field-group">
                    <label>City:</label>
-                   <input type="text" name="city" required />
+                   <input type="text" name="city" />
+                   {fieldErrors.city && <span style={{color: 'red', fontSize: '0.8rem'}}>{fieldErrors.city}</span>}
                  </div>
 
                  <button

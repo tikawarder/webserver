@@ -27,7 +27,6 @@ public class AuthController {
 
     @PostMapping
     public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody LoginRequest request) {
-        try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
@@ -44,11 +43,5 @@ public class AuthController {
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                     .body("Successfully login. The token is in the http cookie.");
-
-        } catch (AuthenticationException e) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid username or password");
-        }
     }
 }

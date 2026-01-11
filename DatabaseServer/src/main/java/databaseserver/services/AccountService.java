@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 public class AccountService implements UserDetailsService {
 
     @Autowired
-    private AccountRepository userRepository;
+    private AccountRepository accountRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Account appUser = userRepository.findByUsername(username)
+        Account appUser = accountRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("I do not find the user in the database: " + username));
 
         return User.builder()
