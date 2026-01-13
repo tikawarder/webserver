@@ -24,7 +24,7 @@ public class Account {
     private String username;
 
     @NotBlank(message = "password can not be empty")
-    @Size(min = 3, max = 50, message = "password length must be 3 to 50 chars")
+    @Size(min = 3, max = 100, message = "password length must be 3 to 100 chars")
     @Column(nullable = false)
     private String password;
 
