@@ -1,4 +1,4 @@
-package databaseserver.model;
+package databaseserver.model.entity;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

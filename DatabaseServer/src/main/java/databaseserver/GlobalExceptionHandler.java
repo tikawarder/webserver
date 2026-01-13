@@ -1,4 +1,4 @@
-package databaseserver.controller;
+package databaseserver;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

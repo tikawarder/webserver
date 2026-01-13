@@ -1,6 +1,6 @@
 package databaseserver.repository;
 
-import databaseserver.model.Account;
+import databaseserver.model.entity.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

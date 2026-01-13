@@ -1,7 +1,10 @@
 package databaseserver.controller;
 
-import databaseserver.model.Person;
+import databaseserver.model.dto.PersonDto;
+import databaseserver.services.PersonService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import databaseserver.repository.PersonRepository;
@@ -10,18 +13,18 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/persons")
+@RequiredArgsConstructor
 public class PersonController {
 
-    @Autowired
-    private PersonRepository personRepository;
+    private final PersonService personService;
 
     @GetMapping
-    public List<Person> getAllPersons() {
-        return personRepository.findAll();
+    public List<PersonDto> getAllPersons() {
+        return personService.getAllPersons();
     }
 
     @PostMapping
-    public Person createPerson(@Valid @RequestBody Person person) {
-        return personRepository.save(person);
+    public ResponseEntity<PersonDto> createPerson(@Valid @RequestBody PersonDto personDto) {
+        return ResponseEntity.ok(personService.createPerson(personDto));
     }
 }

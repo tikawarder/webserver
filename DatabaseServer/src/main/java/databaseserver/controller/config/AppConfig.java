@@ -1,6 +1,6 @@
 package databaseserver.controller.config;
 
-import databaseserver.model.Account;
+import databaseserver.model.entity.Account;
 import databaseserver.model.Role;
 import databaseserver.repository.AccountRepository;
 import org.springframework.boot.CommandLineRunner;

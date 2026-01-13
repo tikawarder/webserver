@@ -1,6 +1,6 @@
 package databaseserver.services;
 
-import databaseserver.model.Account;
+import databaseserver.model.entity.Account;
 import databaseserver.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
