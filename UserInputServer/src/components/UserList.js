@@ -1,7 +1,7 @@
 import React from 'react';
 import UserItem from './UserItem';
 
-function UserList({ users, loading, error, onRefresh }) {
+function UserList({ users, loading, error, onRefresh, page, totalPages, onPageChange }) {
 
     return (
         <div className="user-list-container">
@@ -32,6 +32,32 @@ function UserList({ users, loading, error, onRefresh }) {
 
             {!loading && users.length === 0 && !error && (
                 <p className="empty-message">No data.</p>
+            )}
+
+            {!loading && !error && (
+                <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '15px', alignItems: 'center' }}>
+
+                    <button
+                        onClick={() => onPageChange(page - 1)}
+                        disabled={page === 0}
+                        className="pagination-button"
+                    >
+                        ⬅️ previous
+                    </button>
+
+                    <span>
+                        <strong>{page + 1}.</strong> page / {totalPages}
+                    </span>
+
+                    <button
+                        onClick={() => onPageChange(page + 1)}
+                        disabled={page >= totalPages - 1}
+                        className="pagination-button"
+                    >
+                        Next ➡️
+                    </button>
+
+                </div>
             )}
         </div>
     );

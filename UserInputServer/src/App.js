@@ -10,12 +10,14 @@ function App() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
-  const fetchUsers = () => {
+  const fetchUsers = (pageNumber = 0) => {
     setLoading(true);
     setError(null);
 
-fetch('/api/persons', {
+  fetch('/api/persons?page=' + pageNumber + '&size=5&sort=name,asc', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -30,7 +32,9 @@ fetch('/api/persons', {
         return response.json();
       })
       .then(data => {
-        setUsers(data);
+        setUsers(data.content || []);
+        setTotalPages(data.totalPages);
+        setPage(data.number);
         setLoading(false);
       })
       .catch(err => {
@@ -38,13 +42,12 @@ fetch('/api/persons', {
         setLoading(false);
       });
   };
-  // at start, we fetch the users from database only once
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(0);
   }, []);
 
   const handleSuccessSubmit = () => {
-    fetchUsers(); // after successfully submit new users we fetch all users
+    fetchUsers(0);
   };
 
   return (
@@ -56,7 +59,10 @@ fetch('/api/persons', {
             users={users}
             loading={loading}
             error={error}
-            onRefresh={fetchUsers}
+            onRefresh={() => fetchUsers(0)}
+            page={page}
+            totalPages={totalPages}
+            onPageChange={(newPage) => fetchUsers(newPage)}
           />
          }
         counterPanel={<PageCounter />}

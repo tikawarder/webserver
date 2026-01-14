@@ -4,12 +4,11 @@ import databaseserver.model.dto.PersonDto;
 import databaseserver.services.PersonService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import databaseserver.repository.PersonRepository;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/persons")
@@ -19,8 +18,8 @@ public class PersonController {
     private final PersonService personService;
 
     @GetMapping
-    public List<PersonDto> getAllPersons() {
-        return personService.getAllPersons();
+    public Page<PersonDto> getAllPersons(@PageableDefault(page = 0, size = 5, sort = "name") Pageable pageable) {
+        return personService.getAllPersons(pageable);
     }
 
     @PostMapping
