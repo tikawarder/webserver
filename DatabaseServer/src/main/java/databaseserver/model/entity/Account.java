@@ -3,6 +3,7 @@ package databaseserver.model.entity;
 import databaseserver.model.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -28,7 +29,7 @@ public class Account {
     @Column(nullable = false)
     private String password;
 
-    @NotBlank(message = "role can not be empty")
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
