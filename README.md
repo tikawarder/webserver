@@ -55,7 +55,7 @@ npm start
 
 9, You can check the developer React app here: localhost:3000
 
-10, Spring next tasks:
+10, Spring next tasks, coming soon in the upcoming Spring branch:
 1. Validation
 2. Global Exception Handling
 3. Data Transfer Object
