@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import MainLayout from './components/MainLayout';
 import WelcomePanel from './components/WelcomePanel';
 import InputForm from './components/InputForm';
-import UserList from './components/UserList';
+import UserList from './components/UserList/UserList';
 import PageCounter from './components/PageCounter';
 
 function App() {
