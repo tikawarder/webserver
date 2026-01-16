@@ -43,22 +43,18 @@ Start:
 
 3, visit localhost:8080
 
-4, Broken access control vulnerability: the page - localhost:8080/webserver/search.jsp can be accessed without logging in
+***Vulnerabilities:***
 
-4a,STORED-XSS: fill the input form, insert a text (executable script), like this:
+4a, Broken access control vulnerability: the page - localhost:8080/webserver/search.jsp can't be accessed without logging in
+
+4b,STORED-XSS: fill the input form, insert a text (executable script), like this:
 
      <script>alert("I got your cookies: " + document.cookie);</script>
+
+4c, SQL injection. Go to /search.jsp page and try to input ' OR 1=1 OR name LIKE ' instead a name. Check that all persons have gotten.
+
 5, then new person with its data will be sent to the DataBaseServer with Rest API
 
 6, the Server receives the data and persist to the Mysql database
 
 7, other direction of data happens when the UserInputServer fetches persons from the DatabaseServer
-
-8, Some js trials are in the application
-
------
-
-8, to run the React developer server go to UserInputServer folder and type this: 
-npm start
-
-9, You can check the developer React app here: localhost:3000
