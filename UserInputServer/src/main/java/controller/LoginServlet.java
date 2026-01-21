@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.UUID;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
@@ -21,8 +22,20 @@ public class LoginServlet extends HttpServlet {
         String password = request.getParameter("pwd");
 
         if (isValidCredentials(username, password)) {
-            HttpSession session = request.getSession();
+            // 2. Session Fixation védelem:
+            // Ha volt régi session (pl. amit a támadó indított), azt eldobjuk.
+            HttpSession oldSession = request.getSession(false);
+            if (oldSession != null) {
+                oldSession.invalidate();
+            }
 
+            // Létrehozunk egy teljesen új, tiszta session-t az azonosított felhasználónak.
+            HttpSession session = request.getSession(true);
+
+            // 3. CSRF Token generálása és mentése:
+            // Ez lesz az a titkos kulcs, amit majd a StoreServlet keresni fog.
+            String csrfToken = UUID.randomUUID().toString();
+            session.setAttribute("csrfToken", csrfToken);
             session.setAttribute("loggedInUser", username);
 
             response.sendRedirect(request.getContextPath() + "/search.jsp");

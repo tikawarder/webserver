@@ -17,9 +17,26 @@ import jakarta.ws.rs.core.Response;
 public class StoreServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		String name =  InputSanitizer.sanitize(request.getParameter("name"));
-		String stringLocalDate = InputSanitizer.sanitize(request.getParameter("birthdate"));
-		String city =  InputSanitizer.sanitize(request.getParameter("city"));
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute("loggedInUser") == null) {
+			response.sendRedirect("login.jsp");
+			return;
+		}
+
+		String sessionToken = (String) session.getAttribute("csrfToken");
+		String requestToken = request.getParameter("_csrf");
+
+		if (sessionToken == null || requestToken == null || !sessionToken.equals(requestToken)) {
+			System.out.println("CSRF attack happened! IP: " + request.getRemoteAddr());
+
+			response.sendError(HttpServletResponse.SC_FORBIDDEN, "CSRF Validation Failed");
+			return;
+		}
+
+        String name =  InputSanitizer.sanitize(request.getParameter("name"));
+        String stringLocalDate = InputSanitizer.sanitize(request.getParameter("birthdate"));
+        String city =  InputSanitizer.sanitize(request.getParameter("city"));
 
 		LocalDate date = LocalDate.parse(stringLocalDate);
 
