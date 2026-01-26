@@ -15,6 +15,7 @@ services:
       timeout: 5s
       retries: 5
   userinput-server:
+    container_name: userinput-server
     build:
       context: .
       dockerfile: Dockerfile_UserInputServer
@@ -30,6 +31,7 @@ services:
     environment:
       - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000
   database-server:
+    container_name: database-server
     build:
       context: ../
       dockerfile: docker/Dockerfile_DatabaseServer
