@@ -22,16 +22,26 @@ public class AuthenticationFilter implements Filter {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-
         HttpSession session = httpRequest.getSession(false);
 
         boolean isLoggedIn = (session != null && session.getAttribute("loggedInUser") != null);
 
-        if (isLoggedIn) {
-            chain.doFilter(request, response);
-        } else {
+        if (!isLoggedIn) {
             httpResponse.sendRedirect(httpRequest.getContextPath() + "/login.jsp");
+            return;
         }
+
+        if ("POST".equalsIgnoreCase(httpRequest.getMethod())) {
+
+            String sessionToken = (String) session.getAttribute("csrfToken");
+            String requestToken = httpRequest.getParameter("_csrf");
+
+            if (sessionToken == null || requestToken == null || !sessionToken.equals(requestToken)) {
+                httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "CSRF Validation Failed");
+                return;
+            }
+        }
+        chain.doFilter(request, response);
     }
 
     @Override

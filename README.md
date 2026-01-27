@@ -41,20 +41,26 @@ Start:
     - it will start 3 containers (Mysql database, UserInputServer, DatabaseServer)
     - starts the UserInputServer with the built-in nginx server
 
-3, visit localhost:8080
+3, visit localhost:8080/webapp
+
+4, then new person with its data will be sent to the DataBaseServer with Rest API
+
+5, the Server receives the data and persist to the Mysql database
+
+6, other direction of data happens when the UserInputServer fetches persons from the DatabaseServer
 
 ***Vulnerabilities:***
 
-4a, Broken access control vulnerability: the page - localhost:8080/webserver/search.jsp can't be accessed without logging in
+- STORED-XSS: fill the input form, insert a text (executable script), like this:
+    <pre> &lt;script&gt;alert("I got your cookies: " + document.cookie);&lt;/script&gt; </pre>
+- SQL injection. Go to /search.jsp page and try to input ' OR 1=1 OR name LIKE ' instead a name. Check that all persons have gotten.
 
-4b,STORED-XSS: fill the input form, insert a text (executable script), like this:
+- Broken access control vulnerability: the page - localhost:8080/webserver/search.jsp can't be accessed without logging in
 
-     <script>alert("I got your cookies: " + document.cookie);</script>
+- Vulnerable dependencies
 
-4c, SQL injection. Go to /search.jsp page and try to input ' OR 1=1 OR name LIKE ' instead a name. Check that all persons have gotten.
+- csrf token(without and with)
 
-5, then new person with its data will be sent to the DataBaseServer with Rest API
+- IDOR
 
-6, the Server receives the data and persist to the Mysql database
-
-7, other direction of data happens when the UserInputServer fetches persons from the DatabaseServer
+- SSRF

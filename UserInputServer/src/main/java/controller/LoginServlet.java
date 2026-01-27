@@ -30,8 +30,8 @@ public class LoginServlet extends HttpServlet {
 
             HttpSession session = request.getSession(true);
 
-//            String csrfToken = UUID.randomUUID().toString();
-//            session.setAttribute("csrfToken", csrfToken);
+            String csrfToken = UUID.randomUUID().toString();
+            session.setAttribute("csrfToken", csrfToken);
             session.setAttribute("loggedInUser", username);
 
             response.sendRedirect(request.getContextPath() + "/search.jsp");
