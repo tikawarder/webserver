@@ -107,3 +107,5 @@ npm start
    --platform=managed \
    --allow-unauthenticated
 9. Open the application frontend at: https://frontend-react-801953368913.us-east1.run.app
+
+ssh coppmand to mysql-server: gcloud compute ssh mysql-server --tunnel-through-iap
