@@ -109,3 +109,26 @@ npm start
 9. Open the application frontend at: https://frontend-react-801953368913.us-east1.run.app
 
 ssh coppmand to mysql-server: gcloud compute ssh mysql-server --tunnel-through-iap
+
+10, Terraform
+create main.trf file
+gcloud auth login
+gcloud auth application-default login
+install Terraform:
+- wget -O- https://rpm.releases.hashicorp.com/fedora/hashicorp.repo | sudo tee /etc/yum.repos.d/hashicorp.repo
+- sudo yum list available | grep hashicorp
+- sudo dnf -y install terraform
+
+- terraform init
+Create the project in Google Cloud Console, check its full project id name: testterraform-485917
+ modify the main.tf project name to it.
+- terraform plan
+- terraform apply
+
+- terraform destroy
+
+10B, AWS
+11, CI/CD: A "Zero-Touch" Deployment (GitHub Actions)
+12, Orchestration: Kubernetes (K8s), Helm, maybe Docker Swarm
+13, Observability: CloudWatch (AWS) or Cloud Logging/Monitoring (GCP). Maybe Prometheus and Grafana. Logging: Elasticsearch, Logstash, Kibana.
+14, Secret Management: AWS Secrets Manager-t or GCP Secret Manager
