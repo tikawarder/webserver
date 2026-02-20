@@ -21,6 +21,6 @@
 
     <button type="submit">Send</button>
 </form>
-<!--     <script src="/jsDevelopment/formValidation.js"></script> -->
+    <script src="/jsDevelopment/formValidation.js"></script>
 </body>
 </html>
