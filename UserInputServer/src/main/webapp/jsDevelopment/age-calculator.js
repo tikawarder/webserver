@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const birthEl = document.getElementById("birthDate");
+    const birthEl = document.getElementById("birthDay");
     const ageEl = document.getElementById("ageResult");
 
     if (birthEl && ageEl) {

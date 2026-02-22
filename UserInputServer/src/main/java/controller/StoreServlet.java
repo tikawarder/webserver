@@ -8,6 +8,7 @@ import javax.servlet.http.*;
 import java.io.IOException;
 import java.time.LocalDate;
 
+import model.Person;
 import service.RestClientService;
 
 import jakarta.ws.rs.core.Response;
@@ -22,8 +23,12 @@ public class StoreServlet extends HttpServlet {
 
 		LocalDate date = LocalDate.parse(stringLocalDate);
 
-		//this response can be used for checking the Rest communication
 		Response clientResponse = RestClientService.sendPersonToServer(name, date, city);
+
+		if (clientResponse.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+			Person savedPerson = clientResponse.readEntity(Person.class);
+			request.setAttribute("person", savedPerson);
+		}
 
 		request.getRequestDispatcher("report.jsp").forward(request, response);
 	}

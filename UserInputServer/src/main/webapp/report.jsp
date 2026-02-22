@@ -9,10 +9,10 @@
 <body>
 <h2>Received data:</h2>
 
-<p><strong>Name:</strong> ${param.name}</p>
-<p id="birthDate"><strong>Birth:</strong> ${param.birthdate}</p>
+<p><strong>Name:</strong> <c:out value="${person.name}" /></p>
+<p><strong>Birth:</strong> <span id="birthDay"><c:out value="${person.birthDay}" /></span></p>
 <p><strong>Age:</strong> <span id="ageResult">(calculating...)</span></p>
-<p><strong>City:</strong> ${param.city}</p>
+<p><strong>City:</strong> <c:out value="${person.city}" /></p>
 <br>
 <a href="form.jsp">They are stored in the database and this link returns you to a new input form</a>
 <br>

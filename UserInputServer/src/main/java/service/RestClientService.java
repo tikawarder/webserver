@@ -31,6 +31,7 @@ public class RestClientService {
 		return newClient()
 				.target(SERVER_URL)
 				.request()
+				.accept(MediaType.APPLICATION_JSON)
 				.post(Entity.json(person));
 	}
 }

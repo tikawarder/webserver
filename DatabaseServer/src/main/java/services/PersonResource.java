@@ -6,6 +6,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import model.Person;
 
 import java.util.List;
@@ -22,8 +23,12 @@ public class PersonResource {
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void add(Person person) {
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response add(Person person) {
 		System.out.println(person.toString());
-		personDao.saveUser(person);
+		Person savedPerson = personDao.saveUser(person);
+		return Response.status(Response.Status.CREATED)
+				.entity(savedPerson)
+				.build();
 	}
 }

@@ -10,11 +10,12 @@ import java.util.List;
 public class PersonDao {
 	private final EntityManager entityManager = RestServerLauncher.getEntityManagerFactory().createEntityManager();
 
-	public void saveUser(Person person) {
+	public Person saveUser(Person person) {
 		try {
 			entityManager.getTransaction().begin();
 			entityManager.persist(person);
 			entityManager.getTransaction().commit();
+			return person;
 		} catch (Exception ex) {
 			entityManager.getTransaction().rollback();
 			throw ex;
