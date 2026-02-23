@@ -17,7 +17,7 @@
     <%
         }
     %>
-    <p>Please login for using the search form</p>
+    <p>Please login for using the restricted services</p>
 
     <form method="POST" action="login">
         <label for="username">User:</label>
@@ -28,5 +28,6 @@
 
         <input type="submit" value="Login">
     </form>
+    <p><a href="<%= request.getContextPath() %>/index.jsp">Back to main menu</a></p>
 </body>
 </html>

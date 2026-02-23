@@ -23,9 +23,12 @@ services:
       - database-server
     ports:
       - "8080:8080"
+      - "8000:8000"
     volumes:
       - ../UserInputServer/target/webapp.war:/usr/local/tomcat/webapps/webapp.war
       - ../UserInputServer/src/main/webapp/jsDevelopment:/usr/local/tomcat/webapps/jsDevelopment
+    environment:
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000
   database-server:
     build:
       context: ../

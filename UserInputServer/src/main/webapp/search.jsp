@@ -14,5 +14,6 @@
     <input type="text" id="nameInput" name="nameInput" required>
     <button type="submit">Search</button>
 </form>
+<p><a href="<%= request.getContextPath() %>/index.jsp">Back to main menu</a></p>
 </body>
 </html>

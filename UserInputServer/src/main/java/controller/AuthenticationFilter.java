@@ -8,7 +8,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @WebFilter(
-        urlPatterns = {"/search", "/search.jsp"},
+        urlPatterns = {"/search", "/search.jsp", "/store", "/form.jsp"},
         dispatcherTypes = {
                 DispatcherType.REQUEST,
                 DispatcherType.FORWARD,
