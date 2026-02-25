@@ -28,30 +28,37 @@ public class LoginServlet extends HttpServlet {
 
         if (role != null) {
             HttpSession oldSession = request.getSession(false);
+
             if (oldSession != null) {
                 oldSession.invalidate();
             }
 
             HttpSession session = request.getSession(true);
 
-            String csrfToken = UUID.randomUUID().toString();
-            session.setAttribute("csrfToken", csrfToken);
+            setCSRFtoken(session);
+            setRole(session, username, role);
 
-            session.setAttribute("loggedInUser", username);
-            session.setAttribute("role", role);
-
-            System.out.println("User logged in: " + username + " with role: " + role);
-
-            if (role.equals("guest")) {
-                response.sendRedirect(request.getContextPath() + "/search?nameInput=guest"); //guest should see the guest name filter
-            }
-            else if (role.equals("admin")) {
+            if ("guest".equals(role)) {
+                response.sendRedirect(request.getContextPath() + "/search?nameInput=guest");
+            } else if ("admin".equals(role)) {
                 response.sendRedirect(request.getContextPath() + "/search.jsp");
             }
         } else {
             request.setAttribute("errorMessage", "Wrong username or password");
             request.getRequestDispatcher("/login.jsp").forward(request, response);
         }
+    }
+
+    private void setRole(HttpSession session, String username, String role) {
+        session.setAttribute("loggedInUser", username);
+        session.setAttribute("role", role);
+
+        System.out.println("User logged in: " + username + " with role: " + role);
+    }
+
+    private void setCSRFtoken(HttpSession session) {
+        String csrfToken = UUID.randomUUID().toString();
+        session.setAttribute("csrfToken", csrfToken);
     }
 
     private String getRoleForCredentials(String username, String password) {
