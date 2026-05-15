@@ -9,3 +9,5 @@ out/
 /UserInputServer/react-app_files/
 /UserInputServer/node/
 /UserInputServer/node_modules/
+
+/DatabaseServer/src/main/resources/secrets.properties

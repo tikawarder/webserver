@@ -71,3 +71,67 @@ npm start
 9. @Scheduled
 10. Spring Events
 11. Caching (@Cacheable)
+
+11, How to deploy your codes to the Google Cloud (GCP):
+1. Sign in to cloud console with google credentials, add billing method, create a project.
+2. Install and setup gcloud to be able to create instances from your terminal
+3. Create a virtual instance on GCP with command: 
+   gcloud compute instances create database-server \
+   --zone=us-east1-b \
+   --machine-type=e2-micro \
+   --image-family=debian-11 \
+   --image-project=debian-cloud \
+   --tags=mysql-server
+4. Open firewall on 3306 port:
+   gcloud compute firewall-rules create allow-mysql-access \
+   --direction=INGRESS \
+   --priority=1000 \
+   --network=default \
+   --action=ALLOW \
+   --rules=tcp:3306 \
+   --source-ranges={IP Address Range, or your IP}/32
+5. Step in with SSH command to install the required software: 
+   gcloud compute ssh database-server --zone=us-east1-b
+6. Install docker here: sudo apt-get update
+   sudo apt-get install -y docker.io
+   sudo systemctl start docker
+   sudo systemctl enable docker
+7. Lets docker create a mysql container and run: sudo docker run -d \
+   --name mysql-container \
+   -p 3306:3306 \
+   -e MYSQL_ROOT_PASSWORD=rootPassword \
+   -v mysql_data:/var/lib/mysql \
+   --restart always \
+   mysql:latest
+8. Install the docker containers into Cloud run. Use these commands where the Dockerfile is:
+   gcloud run deploy backend-service \
+   --image=us-east1-docker.pkg.dev/$PROJECT_ID/my-repo/backend \
+   --region=us-east1 \
+   --platform=managed \
+   --allow-unauthenticated
+9. Open the application frontend at: https://frontend-react-801953368913.us-east1.run.app
+
+ssh coppmand to mysql-server: gcloud compute ssh mysql-server --tunnel-through-iap
+
+10, Terraform
+create main.trf file
+gcloud auth login
+gcloud auth application-default login
+install Terraform:
+- wget -O- https://rpm.releases.hashicorp.com/fedora/hashicorp.repo | sudo tee /etc/yum.repos.d/hashicorp.repo
+- sudo yum list available | grep hashicorp
+- sudo dnf -y install terraform
+
+- terraform init
+Create the project in Google Cloud Console, check its full project id name: testterraform-485917
+ modify the main.tf project name to it.
+- terraform plan
+- terraform apply
+
+- terraform destroy
+
+10B, AWS
+11, CI/CD: A "Zero-Touch" Deployment (GitHub Actions)
+12, Orchestration: Kubernetes (K8s), Helm, maybe Docker Swarm
+13, Observability: CloudWatch (AWS) or Cloud Logging/Monitoring (GCP). Maybe Prometheus and Grafana. Logging: Elasticsearch, Logstash, Kibana.
+14, Secret Management: AWS Secrets Manager-t or GCP Secret Manager
