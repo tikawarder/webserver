@@ -41,24 +41,33 @@ Start:
     - it will start 3 containers (Mysql database, UserInputServer, DatabaseServer)
     - starts the UserInputServer with the built-in nginx server
 
-3, visit localhost:8080/webapp
-
-4, then new person with its data will be sent to the DataBaseServer with Rest API
+3, visit localhost:8080
 
 5, the Server receives the data and persist to the Mysql database
 
-6, other direction of data happens when the UserInputServer fetches persons from the DatabaseServer
+5, then new person with its data will be sent to the DataBaseServer with Rest API
 
 ## 🔒 Vulnerabilities (Security Practice)
 
-This branch focuses on introducing and professionally resolving common web vulnerabilities (OWASP Top 10).
+7, other direction of data happens when the UserInputServer fetches persons from the DatabaseServer
 
-| Vulnerability Type | Description & How to test | Status |
-| :--- | :--- | :--- |
-| **STORED-XSS** | Fill the input form with an executable script: `<script>alert("I got your cookies: " + document.cookie);</script>` | ✅ Fixed (via `InputSanitizer`) |
-| **SQL Injection** | Go to `/search.jsp` and input `' OR 1=1 OR name LIKE '` instead of a name. It returns all persons. | ✅ Fixed (via Parameterized JPA) |
-| **Broken Access Control** | The page `localhost:8080/webserver/search.jsp` can be accessed without logging in. | ✅ Fixed (via `SecurityFilter`) |
-| **SSRF** | Server-Side Request Forgery in `AvatarFetchServlet`. User-supplied URLs are fetched directly without validation. | ✅ Fixed (via URL/IP Validation) |
-| **Vulnerable Dependencies** | Using outdated third-party dependencies with known CVEs. | ⏳ Planned |
-| **CSRF** | Cross-Site Request Forgery (testing scenarios with and without CSRF tokens). | ✅ Fixed (via `SecurityFilter`) |
-| **IDOR** | Insecure Direct Object References. Modifying object IDs to access other users' protected data. | ✅ Fixed (via `SecurityFilter`) |
+-----
+
+8, to run the React developer server go to UserInputServer folder and type this: 
+npm start
+
+9, You can check the developer React app here: localhost:3000
+
+10, Spring next tasks, coming soon in the upcoming Spring branch:
+1. Validation
+2. Global Exception Handling
+3. Data Transfer Object
+4. Pagination & Sorting
+5. Unit & Integration Testing
+6. Swagger / OpenAPI
+----
+7. Spring Boot Actuator
+8. Spring Profiles
+9. @Scheduled
+10. Spring Events
+11. Caching (@Cacheable)

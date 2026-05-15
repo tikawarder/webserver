@@ -17,19 +17,16 @@ services:
   userinput-server:
     container_name: userinput-server
     build:
-      context: .
-      dockerfile: Dockerfile_UserInputServer
+      context: ../UserInputServer
+      dockerfile: ../docker/Dockerfile_UserInputServer_Dev
     image: userinput:latest
     depends_on:
       - database-server
-    ports:
-      - "8080:8080"
-      - "8000:8000"
     volumes:
-      - ../UserInputServer/target/webapp.war:/usr/local/tomcat/webapps/webapp.war
-      - ../UserInputServer/src/main/webapp/jsDevelopment:/usr/local/tomcat/webapps/jsDevelopment
-    environment:
-      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000
+      - ../UserInputServer:/app
+      - /app/node_modules
+    ports:
+      - "8080:3000"
   database-server:
     container_name: database-server
     build:
@@ -41,3 +38,6 @@ services:
         condition: service_healthy
     ports:
       - "8081:8081"
+      - "5005:5005"
+    environment:
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
