@@ -39,15 +39,22 @@ public class StoreServlet extends HttpServlet {
         String stringLocalDate = InputSanitizer.sanitize(request.getParameter("birthdate"));
         String city =  InputSanitizer.sanitize(request.getParameter("city"));
 
-		LocalDate date = LocalDate.parse(stringLocalDate);
+		try {
+			LocalDate date = LocalDate.parse(stringLocalDate);
+			Response clientResponse = RestClientService.sendPersonToServer(name, date, city);
 
-		Response clientResponse = RestClientService.sendPersonToServer(name, date, city);
+			if (clientResponse.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+				Person savedPerson = clientResponse.readEntity(Person.class);
+				request.setAttribute("person", savedPerson);
+			}
 
-		if (clientResponse.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
-			Person savedPerson = clientResponse.readEntity(Person.class);
-			request.setAttribute("person", savedPerson);
+			request.getRequestDispatcher("report.jsp").forward(request, response);
+		} catch (java.time.format.DateTimeParseException e) {
+			System.err.println("Invalid date format provided: " + stringLocalDate);
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid date format!");
+		} catch (Exception e) {
+			System.err.println("Unexpected error in StoreServlet: " + e.getMessage());
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unexpected internal error occurred!");
 		}
-
-		request.getRequestDispatcher("report.jsp").forward(request, response);
 	}
 }

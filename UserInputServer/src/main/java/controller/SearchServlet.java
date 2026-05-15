@@ -15,12 +15,17 @@ import java.util.List;
 @WebServlet("/search")
 public class SearchServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String name = request.getParameter("nameInput");
-        List<Person> persons = RestClientService.getPersonsByName(name);
+        try {
+            String name = request.getParameter("nameInput");
+            List<Person> persons = RestClientService.getPersonsByName(name);
 
-        request.setAttribute("persons", persons);
+            request.setAttribute("persons", persons);
 
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/list.jsp");
-        dispatcher.forward(request, response);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/list.jsp");
+            dispatcher.forward(request, response);
+        } catch (Exception e) {
+            System.err.println("Unexpected error in SearchServlet: " + e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error occurred during search!");
+        }
     }
 }
