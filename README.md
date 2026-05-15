@@ -49,18 +49,16 @@ Start:
 
 6, other direction of data happens when the UserInputServer fetches persons from the DatabaseServer
 
-***Vulnerabilities:***
+## 🔒 Vulnerabilities (Security Practice)
 
-- STORED-XSS: fill the input form, insert a text (executable script), like this:
-    <pre> &lt;script&gt;alert("I got your cookies: " + document.cookie);&lt;/script&gt; </pre>
-- SQL injection. Go to /search.jsp page and try to input ' OR 1=1 OR name LIKE ' instead a name. Check that all persons have gotten.
+This branch focuses on introducing and professionally resolving common web vulnerabilities (OWASP Top 10).
 
-- Broken access control vulnerability: the page - localhost:8080/webserver/search.jsp can't be accessed without logging in
-
-- Vulnerable dependencies
-
-- csrf token(without and with)
-
-- IDOR
-
-- SSRF
+| Vulnerability Type | Description & How to test | Status |
+| :--- | :--- | :--- |
+| **STORED-XSS** | Fill the input form with an executable script: `<script>alert("I got your cookies: " + document.cookie);</script>` | ✅ Fixed (via `InputSanitizer`) |
+| **SQL Injection** | Go to `/search.jsp` and input `' OR 1=1 OR name LIKE '` instead of a name. It returns all persons. | ✅ Fixed (via Parameterized JPA) |
+| **Broken Access Control** | The page `localhost:8080/webserver/search.jsp` can be accessed without logging in. | ✅ Fixed (via `SecurityFilter`) |
+| **SSRF** | Server-Side Request Forgery in `AvatarFetchServlet`. User-supplied URLs are fetched directly without validation. | ✅ Fixed (via URL/IP Validation) |
+| **Vulnerable Dependencies** | Using outdated third-party dependencies with known CVEs. | ⏳ Planned |
+| **CSRF** | Cross-Site Request Forgery (testing scenarios with and without CSRF tokens). | ✅ Fixed (via `SecurityFilter`) |
+| **IDOR** | Insecure Direct Object References. Modifying object IDs to access other users' protected data. | ✅ Fixed (via `SecurityFilter`) |
