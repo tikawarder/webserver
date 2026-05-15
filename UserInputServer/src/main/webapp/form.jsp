@@ -19,6 +19,8 @@
     <label for="city">Your city:</label><br>
     <input type="text" id="city" name="city" required><br><br>
 
+    <input type="hidden" name="_csrf" value="${sessionScope.csrfToken}">
+
     <button type="submit">Send</button>
 </form>
     <script src="/jsDevelopment/formValidation.js"></script>

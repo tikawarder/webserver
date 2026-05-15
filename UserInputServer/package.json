@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "pkce-challenge": "3.0.0",
-    "crypto-js": "^3.0.0"
+    "crypto-js": "^4.2.0",
+    "pkce-challenge": "3.0.0"
   },
   "devDependencies": {
     "webpack": "^5.0.0",

@@ -17,12 +17,15 @@ My detailed plan with milestones:
 3, REST and SOAP communication.                   - Just 1 simple trial for SOAP.
                                                   - Implement an app with REST (app and database communication). Use MVC.
 
-4, Frontend basics.                               - develope an easy ui with html, css and javascript.
+4, Frontend/React basics.                         - develope an easy ui with html, css and javascript.
                                                   - start some basic React to learn
+
+extra: Learn vulnerabilities                      - add a commit that introduce a security issue
+                                                  - on the second commit, solve it
 
 5, Spring Boot                                    - Implement the above topics into Spring Boot. Use Spring MVC and other functions.
 
-6, Google Cloud Privider (GCP)                    - Move the project to GCP
+6, Google Cloud Provider (GCP)                    - Move the project to GCP
 
 Preparing:
 1, use java 17
@@ -33,19 +36,29 @@ Start:
 
 1, Clone this repository
 
-2, type ./start.sh to start the deploy process
+2, type ./start.sh to start the deployment process
 
     - it will start 3 containers (Mysql database, UserInputServer, DatabaseServer)
-    - starts the UserInputServer with the built-in tomcat server
+    - starts the UserInputServer with the built-in nginx server
 
-3, visit localhost:8080/webapp/
+3, visit localhost:8080/webapp
 
-4, fill the input form, where the data acceptance will be checked by javascript and later sanitized by the server
+4, then new person with its data will be sent to the DataBaseServer with Rest API
 
-5, then person object will be sent to the DataBaseServer with Rest API
+5, the Server receives the data and persist to the Mysql database
 
-6, the Server receives the data and persist to the Mysql database
+6, other direction of data happens when the UserInputServer fetches persons from the DatabaseServer
 
-7, the other direction of data happens when the UserInputServer asks all persons from the DatabaseServer
+## 🔒 Vulnerabilities (Security Practice)
 
-8, Some js trials are in the application
+This branch focuses on introducing and professionally resolving common web vulnerabilities (OWASP Top 10).
+
+| Vulnerability Type | Description & How to test | Status |
+| :--- | :--- | :--- |
+| **STORED-XSS** | Fill the input form with an executable script: `<script>alert("I got your cookies: " + document.cookie);</script>` | ✅ Fixed (via `InputSanitizer`) |
+| **SQL Injection** | Go to `/search.jsp` and input `' OR 1=1 OR name LIKE '` instead of a name. It returns all persons. | ✅ Fixed (via Parameterized JPA) |
+| **Broken Access Control** | The page `localhost:8080/webserver/search.jsp` can be accessed without logging in. | ✅ Fixed (via `SecurityFilter`) |
+| **SSRF** | Server-Side Request Forgery in `AvatarFetchServlet`. User-supplied URLs are fetched directly without validation. | ✅ Fixed (via URL/IP Validation) |
+| **Vulnerable Dependencies** | Using outdated third-party dependencies with known CVEs. | ⏳ Planned |
+| **CSRF** | Cross-Site Request Forgery (testing scenarios with and without CSRF tokens). | ✅ Fixed (via `SecurityFilter`) |
+| **IDOR** | Insecure Direct Object References. Modifying object IDs to access other users' protected data. | ✅ Fixed (via `SecurityFilter`) |

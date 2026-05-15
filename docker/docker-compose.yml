@@ -1,6 +1,7 @@
 services:
   mysql_for_webserver:
     image: mysql:8.0
+    restart: unless-stopped
     container_name: mysql_for_webserver
     ports:
       - "3307:3306"
@@ -14,6 +15,7 @@ services:
       timeout: 5s
       retries: 5
   userinput-server:
+    container_name: userinput-server
     build:
       context: .
       dockerfile: Dockerfile_UserInputServer
@@ -22,10 +24,14 @@ services:
       - database-server
     ports:
       - "8080:8080"
+      - "8000:8000"
     volumes:
       - ../UserInputServer/target/webapp.war:/usr/local/tomcat/webapps/webapp.war
       - ../UserInputServer/src/main/webapp/jsDevelopment:/usr/local/tomcat/webapps/jsDevelopment
+    environment:
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000
   database-server:
+    container_name: database-server
     build:
       context: ../
       dockerfile: docker/Dockerfile_DatabaseServer

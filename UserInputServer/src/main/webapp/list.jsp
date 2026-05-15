@@ -25,6 +25,6 @@
     </c:choose>
 </ul>
 
-<p><a href="<%= request.getContextPath() %>/form.jsp">Towards to input form</a></p>
+<p><a href="<%= request.getContextPath() %>/index.jsp">Back to main menu</a></p>
 </body>
 </html>

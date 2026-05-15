@@ -22,6 +22,15 @@ public class RestClientService {
 				});
 	}
 
+	public static List<Person> getPersonsByName(String name) {
+		return newClient()
+				.target(SERVER_URL)
+				.path(name)
+				.request(MediaType.APPLICATION_JSON)
+				.get(new GenericType<>() {
+				});
+	}
+
 	public static Response sendPersonToServer(String name, LocalDate date, String city) {
 		Person person = Person.builder()
 				.name(name)
@@ -31,6 +40,7 @@ public class RestClientService {
 		return newClient()
 				.target(SERVER_URL)
 				.request()
+				.accept(MediaType.APPLICATION_JSON)
 				.post(Entity.json(person));
 	}
 }
