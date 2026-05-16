@@ -1,10 +1,9 @@
-CREATE DATABASE IF NOT EXISTS usersdb CHARACTER SET utf8 COLLATE utf8_general_ci;
-
-USE usersdb;
+-- PostgreSQL init script
+-- Note: Database is created by docker-compose POSTGRES_DB variable
 
 CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
-    birthDay DATE,
-    city VARCHAR(100)
-    );
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    birthDay DATE NOT NULL,
+    city VARCHAR(100) NOT NULL
+);

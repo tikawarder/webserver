@@ -6,7 +6,7 @@ function UserList({ users, loading, error, onRefresh }) {
 
      return (
          <div className="user-list-container">
-             {/* Fejléc rész */}
+             {/* Header section */}
              <div className="user-list-header">
                  <h2>Users</h2>
                  <button
@@ -19,28 +19,28 @@ function UserList({ users, loading, error, onRefresh }) {
                  </button>
              </div>
 
-             {/* Hibaüzenet blokk */}
+             {/* Error message block */}
              {error && (
                  <div className="error-message">
                      <strong>Error:</strong> {error}
                  </div>
              )}
 
-             {/* Lista blokk */}
+             {/* List block */}
              <div className="scrollable-list">
                  {users.map(user => (
                      <UserItem
                          key={user.id}
                          id={user.id}
                          name={user.name}
-                         // Kezeljük rugalmasan a backend mezőneveit (dob vs birthDay)
+                         // Handle backend field names flexibly (dob vs birthDay)
                          birthDay={user.dob || user.birthDay}
                          city={user.city}
                      />
                  ))}
              </div>
 
-             {/* Üres állapot */}
+             {/* Empty state */}
              {!loading && users.length === 0 && !error && (
                  <p className="empty-message">No users found in the database.</p>
              )}
