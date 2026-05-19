@@ -4,6 +4,7 @@ import databaseserver.model.dto.PersonDto;
 import databaseserver.model.entity.Person;
 import databaseserver.repository.PersonRepository;
 import databaseserver.services.mapper.PersonMapper;
+import databaseserver.services.kafka.KafkaProducerService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +31,9 @@ class PersonServiceTest {
 
     @Mock
     private PersonMapper personMapper;
+
+    @Mock
+    private KafkaProducerService kafkaProducerService;
 
     @InjectMocks
     private PersonService personService;
