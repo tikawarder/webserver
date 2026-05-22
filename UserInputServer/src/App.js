@@ -5,6 +5,7 @@ import WelcomePanel from './components/WelcomePanel';
 import InputForm from './components/InputForm';
 import UserList from './components/UserList/UserList';
 import PageCounter from './components/PageCounter';
+import Login from './components/Login';
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -12,6 +13,7 @@ function App() {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   const fetchUsers = (pageNumber = 0) => {
     setLoading(true);
@@ -26,7 +28,8 @@ function App() {
     })
       .then(response => {
         if (response.status === 403 || response.status === 401) {
-            throw new Error('Access denied. Please login!');
+            setIsAuthenticated(false);
+            throw new Error('Please sign in to view and manage users.');
         }
         if (!response.ok) { throw new Error(`HTTP error: ${response.status}`); }
         return response.json();
@@ -36,24 +39,37 @@ function App() {
         setTotalPages(data.totalPages);
         setPage(data.number);
         setLoading(false);
+        setIsAuthenticated(true);
       })
       .catch(err => {
         setError(err.message);
         setLoading(false);
       });
   };
+
   useEffect(() => {
     fetchUsers(0);
   }, []);
 
   const handleSuccessSubmit = () => {
+    fetchUsers(page);
+  };
+
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
     fetchUsers(0);
   };
 
   return (
     <MainLayout
         welcomePanel={<WelcomePanel/>}
-        formPanel={<InputForm onSubmissionSuccess={handleSuccessSubmit} />}
+        formPanel={
+          isAuthenticated ? (
+            <InputForm onSubmissionSuccess={handleSuccessSubmit} />
+          ) : (
+            <Login onLoginSuccess={handleLoginSuccess} />
+          )
+        }
         listPanel={
           <UserList
             users={users}

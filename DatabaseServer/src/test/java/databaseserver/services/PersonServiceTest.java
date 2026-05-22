@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import databaseserver.services.kafka.KafkaProducerService;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -30,6 +31,9 @@ class PersonServiceTest {
 
     @Mock
     private PersonMapper personMapper;
+
+    @Mock
+    private KafkaProducerService kafkaProducerService;
 
     @InjectMocks
     private PersonService personService;
