@@ -18,6 +18,23 @@ services:
     networks:
       - app-network
 
+  auth-service:
+    build:
+      context: ./AuthService
+    container_name: auth_service
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    ports:
+      - "9083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db:5432/authdb
+      - SPRING_DATASOURCE_USERNAME=user
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    networks:
+      - app-network
+
   database-server:
     build:
       context: ./DatabaseServer
@@ -32,19 +49,6 @@ services:
       - SPRING_DATASOURCE_USERNAME=user
       - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
-    networks:
-      - app-network
-
-  notification-service:
-    build:
-      context: ./NotificationService
-    container_name: notification_service
-    depends_on:
-      - kafka
-    ports:
-      - "9082:8082"
-    environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
     networks:
       - app-network
