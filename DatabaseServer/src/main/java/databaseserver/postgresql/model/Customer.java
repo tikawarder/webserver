@@ -9,21 +9,17 @@ import java.util.List;
 /**
  * Represents a customer in the PostgreSQL demo module.
  *
- * Relationship: Customer (1) --- (*) Order
+ * Relationships:
+ *   Customer (1) --- (*) Order        @OneToMany  / @ManyToOne
+ *   Customer (1) --- (1) Profile      @OneToOne
  *
- * Used to demonstrate:
- * - JOIN queries (INNER, LEFT)
- * - N+1 problem and its solution with JOIN FETCH
- * - Index on email field
+ * FetchType.LAZY (default for @OneToMany, @ManyToOne):
+ *   orders and profile are NOT loaded until explicitly accessed.
  */
 @Entity
 @Table(
     name = "demo_customers",
     indexes = {
-        // --- INDEX DEMO ---
-        // This index speeds up lookups by email (used in WHERE clauses).
-        // Without it: full table scan (Seq Scan).
-        // With it: index scan — much faster on large tables.
         @Index(name = "idx_customer_email", columnList = "email"),
         @Index(name = "idx_customer_city", columnList = "city")
     }
@@ -49,13 +45,19 @@ public class Customer {
     private String city;
 
     /**
-     * LAZY loading = N+1 problem source.
-     * When we call customer.getOrders() in a loop AFTER the initial query,
-     * Hibernate fires a NEW SQL query for every single customer.
-     *
-     * Solution: use JOIN FETCH in the repository query, or @EntityGraph.
+     * @OneToMany — LAZY (default).
+     * 'mappedBy' = the field name in Order that holds the FK.
+     * cascade = ALL: saving/deleting Customer also saves/deletes its Orders.
      */
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Order> orders = new ArrayList<>();
+
+    /**
+     * @OneToOne — LAZY (best practice).
+     * 'mappedBy' = the field in CustomerProfile that owns the FK.
+     * EAGER here would load the profile even when you only need the customer's name.
+     */
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private CustomerProfile profile;
 }

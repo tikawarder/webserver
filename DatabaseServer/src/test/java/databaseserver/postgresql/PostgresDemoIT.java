@@ -51,6 +51,12 @@ class PostgresDemoIT {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private databaseserver.postgresql.repository.ProfileRepository profileRepository;
+
+    @Autowired
+    private databaseserver.postgresql.repository.TagRepository tagRepository;
+
     // =========================================================================
     // TEST DATA SETUP
     // =========================================================================
@@ -66,13 +72,17 @@ class PostgresDemoIT {
     void tearDown() {
         // Ensure all test data is cleaned up, even if a test fails mid-way.
         // This prevents unique constraint violations in the next test's @BeforeEach.
+        profileRepository.deleteAll();
         orderRepository.deleteAll();
+        tagRepository.deleteAll();
         customerRepository.deleteAll();
     }
 
     @BeforeEach
     void setUp() {
+        profileRepository.deleteAll();
         orderRepository.deleteAll();
+        tagRepository.deleteAll();
         customerRepository.deleteAll();
 
         alice = customerRepository.save(Customer.builder()

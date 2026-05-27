@@ -9,11 +9,9 @@ import java.time.LocalDateTime;
 /**
  * Represents an order placed by a Customer.
  *
- * Relationship: Order (*) --- (1) Customer
- *
- * Used to demonstrate:
- * - JOIN queries: how to fetch Customer + Orders together
- * - N+1 problem: when loading orders per customer in a loop
+ * Relationships:
+ *   Order (*) --- (1) Customer    @ManyToOne  (owning side — has the FK)
+ *   Order (*) --- (*) Tag         @ManyToMany (owning side — has the join table)
  */
 @Entity
 @Table(
@@ -50,12 +48,34 @@ public class Order {
     private LocalDateTime createdAt;
 
     /**
-     * The owning side of the Customer <-> Order relationship.
-     * The foreign key column 'customer_id' lives in this table.
+     * @ManyToOne — owning side of Customer <-> Order.
+     * The FK column 'customer_id' lives in THIS table (demo_orders).
+     * FetchType.LAZY: customer data is NOT loaded with the order automatically.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
+
+    /**
+     * @ManyToMany — owning side of Order <-> Tag.
+     *
+     * JPA creates a JOIN TABLE automatically: demo_order_tags
+     *   Columns: order_id | tag_id
+     *
+     * FetchType.LAZY (default for @ManyToMany):
+     *   Tags are NOT fetched with the order. Loaded only when getTags() is called.
+     *
+     * cascade = PERSIST, MERGE: saving an order also saves new tags,
+     *   but does NOT delete tags when the order is deleted (tags are shared!).
+     */
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "demo_order_tags",
+        joinColumns = @JoinColumn(name = "order_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    @Builder.Default
+    private java.util.Set<Tag> tags = new java.util.HashSet<>();
 
     public enum OrderStatus {
         PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED

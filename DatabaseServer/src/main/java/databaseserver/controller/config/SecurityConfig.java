@@ -28,6 +28,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         // PostgreSQL demo endpoints — no auth needed for learning purposes
                         .requestMatchers("/api/demo/**").permitAll()
+                        .requestMatchers("/api/relations/**").permitAll()
                         // H2 in-memory console — only active with the h2 profile
                         .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated())

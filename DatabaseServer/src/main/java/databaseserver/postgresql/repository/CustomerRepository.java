@@ -93,4 +93,21 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
      * This query benefits from idx_customer_city index.
      */
     List<Customer> findByCity(String city);
+
+    // =========================================================================
+    // @OneToOne JOIN FETCH queries
+    // =========================================================================
+
+    /**
+     * Load ALL customers with their profiles in ONE query.
+     * LEFT JOIN FETCH: Charlie (no profile) still appears with profile=null.
+     */
+    @Query("SELECT c FROM Customer c LEFT JOIN FETCH c.profile")
+    List<Customer> findAllWithProfile();
+
+    /**
+     * Load a single customer with profile AND orders in as few queries as possible.
+     */
+    @Query("SELECT c FROM Customer c LEFT JOIN FETCH c.profile WHERE c.id = :id")
+    Optional<Customer> findByIdWithProfileAndOrders(@org.springframework.data.repository.query.Param("id") Long id);
 }

@@ -21,11 +21,13 @@ import org.springframework.stereotype.Component;
 public class DataInitializer implements ApplicationRunner {
 
     private final PostgresDemoService demoService;
+    private final databaseserver.postgresql.service.RelationshipDemoService relationService;
 
     @Override
     public void run(ApplicationArguments args) {
         log.info("=== PostgreSQL Demo: Seeding sample data ===");
         demoService.seedData();
+        relationService.seedRelationshipData();
         log.info("=== PostgreSQL Demo: Ready. Call /api/demo/* endpoints ===");
     }
 }
