@@ -24,6 +24,7 @@ public class PersonService {
     private final OutboxMessageRepository outboxMessageRepository;
     private final PersonMapper personMapper;
     private final ObjectMapper objectMapper;
+    private final AuthServiceClient authServiceClient;
 
     @Transactional(readOnly = true)
     public Page<PersonDto> getAllPersons(Pageable pageable) {
@@ -33,6 +34,15 @@ public class PersonService {
 
     @Transactional
     public PersonDto createPerson(PersonDto personDto) {
+        // Lekérjük a Spring Security-ból a bejelentkezett felhasználót
+        String currentUsername = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        
+        // Ellenőrizzük az AuthServiceClient segítségével (Circuit Breaker-rel védett szinkron hívás!)
+        boolean isUserActive = authServiceClient.validateUser(currentUsername);
+        if (!isUserActive) {
+            throw new org.springframework.security.access.AccessDeniedException("Active account verification failed in AuthService!");
+        }
+
         Person entity = personMapper.toEntity(personDto);
         Person saved = personRepository.save(entity);
 

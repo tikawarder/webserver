@@ -135,3 +135,8 @@ Create the project in Google Cloud Console, check its full project id name: test
 12, Orchestration: Kubernetes (K8s), Helm, maybe Docker Swarm
 13, Observability: CloudWatch (AWS) or Cloud Logging/Monitoring (GCP). Maybe Prometheus and Grafana. Logging: Elasticsearch, Logstash, Kibana.
 14, Secret Management: AWS Secrets Manager-t or GCP Secret Manager
+
+## 🌐 Event-Driven Microservices Architecture
+1. **Database-per-Service**: Decoupled schemas (`authdb` and `usersdb`) in PostgreSQL to separate `AuthService` and `DatabaseServer`.
+2. **API Gateway & JWT Token Relay**: Configured Nginx Gateway (`UserInputServer`) to route requests. Implemented stateless HMAC-SHA256 signature verification in `DatabaseServer`.
+3. **Transactional Outbox Pattern**: Implemented transactional event persistence (`outbox_messages` table) with a background scheduler (`OutboxPublisher` polling every 5s) to guarantee reliable at-least-once Kafka event delivery.

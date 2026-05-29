@@ -3,6 +3,7 @@ package authservice.controller;
 import authservice.model.entity.LoginRequest;
 import authservice.services.security.JwtUtil;
 import jakarta.validation.Valid;
+import authservice.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -22,6 +23,15 @@ public class AuthController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @GetMapping("/validate/{username}")
+    public ResponseEntity<Boolean> validateUser(@PathVariable String username) {
+        boolean exists = accountRepository.findByUsername(username).isPresent();
+        return ResponseEntity.ok(exists);
+    }
 
     @PostMapping
     public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody LoginRequest request) {
