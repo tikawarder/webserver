@@ -13,15 +13,19 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
-    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final Key secretKey;
     private static final long EXPIRATION_TIME = 86400000; // 1 day in milliseconds
+
+    public JwtUtil(@org.springframework.beans.factory.annotation.Value("${spring.security.jwt.secret:mySecretKeyForJWTTokenSigningMustBeAtLeast256BitsLongForHMACSHA256Algorithm}") String secret) {
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SECRET_KEY)
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -39,7 +43,7 @@ private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
 }
 
 private Claims extractAllClaims(String token) {
-    return Jwts.parserBuilder().setSigningKey(SECRET_KEY).build().parseClaimsJws(token).getBody();
+    return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
 }
 
 private Boolean isTokenExpired(String token) {
