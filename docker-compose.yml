@@ -53,6 +53,19 @@ services:
     networks:
       - app-network
 
+  notification-service:
+    build:
+      context: ./NotificationService
+    container_name: notification_service
+    depends_on:
+      - kafka
+    ports:
+      - "9082:8082"
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+    networks:
+      - app-network
+
   userinput-server:
     build:
       context: ./UserInputServer
