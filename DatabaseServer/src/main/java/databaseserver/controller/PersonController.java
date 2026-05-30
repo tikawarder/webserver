@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/persons")
 @RequiredArgsConstructor
+@CrossOrigin(origins = {"https://frontend-react-801953368913.us-east1.run.app", "https://dev.birotamas.hu", "http://localhost:3000", "http://localhost:8080"}, allowCredentials = "true")
 public class PersonController {
 
     private final PersonService personService;
