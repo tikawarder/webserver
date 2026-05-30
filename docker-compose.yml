@@ -67,16 +67,26 @@ services:
     networks:
       - app-network
 
+  gateway:
+    build:
+      context: ./GatewayService
+    container_name: gateway
+    depends_on:
+      - auth-service
+      - database-server
+    ports:
+      - "9090:8090"
+    networks:
+      - app-network
+
   userinput-server:
     build:
       context: ./UserInputServer
     container_name: userinput_server
     depends_on:
-      - database-server
+      - gateway
     ports:
       - "9080:8080"
-    environment:
-      - REACT_APP_API_URL=http://localhost:9081
     networks:
       - app-network
 
