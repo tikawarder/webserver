@@ -7,10 +7,10 @@ test('login, add a person, verify it appears in the list', async ({ page }) => {
   // 2. Login with admin credentials
   await page.fill('#username', 'admin');
   await page.fill('#password', 'password');
-  await page.click('button[type="submit"]');
+  await page.click('button:has-text("Login")');
 
   // Wait until login is confirmed
-  await expect(page.locator('text=Login successful')).toBeVisible();
+  await expect(page.locator('text=Welcome back, admin')).toBeVisible();
 
   // 3. Fill in the person form
   const testName = 'Playwright Tesztelő';
