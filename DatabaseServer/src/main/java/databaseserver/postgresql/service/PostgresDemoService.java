@@ -215,13 +215,9 @@ public class PostgresDemoService {
     @Transactional(readOnly = true)
     public List<CustomerDto> getCustomersFixed() {
         log.info("[N+1 FIXED] Using JOIN FETCH — single SQL query");
-        // Single query loads both customers AND their orders
-        List<Order> allOrders = orderRepository.findAllWithCustomer();
-        Map<Long, List<Order>> ordersByCustomerId = allOrders.stream()
-                .collect(Collectors.groupingBy(o -> o.getCustomer().getId()));
-        List<Customer> customers = customerRepository.findAll();
+        List<Customer> customers = customerRepository.findAllWithOrdersJoinFetch();
         return customers.stream()
-                .map(c -> toDtoWithOrders(c, ordersByCustomerId.getOrDefault(c.getId(), List.of())))
+                .map(c -> toDtoWithOrders(c, c.getOrders()))
                 .collect(Collectors.toList());
     }
 
