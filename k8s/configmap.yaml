@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: webserver
+data:
+  POSTGRES_HOST: postgres-service
+  KAFKA_BOOTSTRAP_SERVERS: kafka-service:9092
+  AUTH_SERVICE_URL: http://auth-service:8083/api/auth/validate/
