@@ -3,7 +3,7 @@ const { defineConfig } = require('@playwright/test');
 module.exports = defineConfig({
   testDir: './e2e',
   use: {
-    baseURL: 'http://localhost:8080',
+    baseURL: 'http://localhost:9080',
     headless: true,
   },
   projects: [

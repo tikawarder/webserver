@@ -91,6 +91,28 @@ Three roles are defined (`ADMIN`, `USER`, `GUEST`) and stored per account. Curre
 
 ---
 
+## E2E Testing
+
+End-to-end tests are written with [Playwright](https://playwright.dev/) and cover the core user flow: login → add a person → verify it appears in the list.
+
+```bash
+cd UserInputServer
+npm install
+npx playwright install chromium
+npm run e2e
+```
+
+The app must be running at `http://localhost:9080` before executing the tests.
+
+```
+UserInputServer/
+├── e2e/
+│   └── person-flow.spec.js   ← test file
+└── playwright.config.js      ← baseURL and browser config
+```
+
+---
+
 ## Observability
 
 | Service | URL |
