@@ -14,7 +14,7 @@ public class AuthServiceClient {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public AuthServiceClient(
-            @Value("${auth.service.url:http://auth_service:8083/api/auth/validate/}") String authServiceUrl) {
+            @Value("${auth.service.url:http://auth-service:8083/api/auth/validate/}") String authServiceUrl) {
         this.authServiceUrl = authServiceUrl;
     }
 

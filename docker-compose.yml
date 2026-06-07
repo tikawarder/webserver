@@ -36,6 +36,12 @@ services:
       - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8083/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - app-network
 
@@ -57,6 +63,12 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - app-network
 
@@ -80,9 +92,12 @@ services:
       context: ./GatewayService
     container_name: gateway
     depends_on:
-      - auth-service
-      - database-server
-      - zipkin
+      auth-service:
+        condition: service_healthy
+      database-server:
+        condition: service_healthy
+      zipkin:
+        condition: service_started
     ports:
       - "9090:8090"
     environment:
