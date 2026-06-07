@@ -1,142 +1,101 @@
-The study plan (agreed with Adorjan)
-- To be able to tell "what is web service".
-- REST web services (jax-rs)
-  - SOAP as second hand :-(
-- Plan an app that uses web service. It can receive and send REST messages.
-- Implement that app.
-- Do the same with Spring Boot
-- Do the same in Cloud world (GCP or other)
-  
-My detailed plan with milestones:
+# Microservices Demo App
 
-1, Servlets                                       - Create servlets with jsp's that communicate with each other
+A hands-on learning project that grew from a simple servlet into a full microservices architecture.
+It demonstrates how independent Spring Boot services communicate, stay resilient, and handle events asynchronously — all running locally with Docker Compose.
 
-2, Forms and user inputs. Store in Database.      - Use a form on the UI and get data from user. Store these data.
-                                                  - Get data from Database with different SQL commands.
+---
 
-3, REST and SOAP communication.                   - Just 1 simple trial for SOAP.
-                                                  - Implement an app with REST (app and database communication). Use MVC.
+## What it does
 
-4, Frontend/React basics.                         - develope an easy ui with html, css and javascript.
-                                                  - start some basic React to learn
+Users can log in, add people to a database, and browse the list with pagination.
+Behind the scenes, every new person triggers a Kafka event that a separate notification service picks up — no direct coupling between services.
 
-extra: Learn vulnerabilities                      - add a commit that introduce a security issue
-                                                  - on the second commit, solve it
+---
 
-5, Spring Boot                                    - Implement the above topics into Spring Boot. Use Spring MVC and other functions.
+## Architecture
 
-6, Google Cloud Provider (GCP)                    - Move the project to GCP
+```
+Browser
+  └── localhost:9080
+        └── Nginx (UserInputServer / React)
+              └── /api/** → Spring Cloud Gateway :8090
+                    ├── /api/auth/** → AuthService :8083  (JWT login/logout)
+                    └── /api/**      → DatabaseServer :8080 (person CRUD)
+                                            └── Kafka → NotificationService :8082
+                                            └── Zipkin (distributed tracing)
+PostgreSQL
+  ├── authdb   (accounts, roles)
+  └── usersdb  (persons, outbox_messages)
+```
 
-Preparing:
-1, use java 17
-2, install Docker CLI
-3, Git has to be installed
+---
 
-Start:
+## Quick start
 
-1, Clone this repository
+**Requirements:** Docker and Docker Compose
 
-2, type ./start.sh to start the deployment process
+```bash
+git clone <repo>
+cd webserver
+docker compose up --build
+```
 
-    - it will start 3 containers (Mysql database, UserInputServer, DatabaseServer)
-    - starts the UserInputServer with the built-in nginx server
+Open **http://localhost:9080**
 
-3, visit localhost:8080
+Login credentials: `admin` / `password`
 
-5, the Server receives the data and persist to the Mysql database
+The gateway and frontend wait for the backend services to become healthy before starting — no manual ordering needed.
 
-5, then new person with its data will be sent to the DataBaseServer with Rest API
+---
 
-## 🔒 Vulnerabilities (Security Practice)
+## Tech stack
 
-7, other direction of data happens when the UserInputServer fetches persons from the DatabaseServer
+| Layer | Technology |
+|---|---|
+| Frontend | React, Nginx |
+| Gateway | Spring Cloud Gateway |
+| Auth | Spring Security, JWT (HttpOnly cookie) |
+| Backend | Spring Boot 3.4.1, Spring Data JPA |
+| Database | PostgreSQL 15 |
+| Messaging | Apache Kafka, Transactional Outbox Pattern |
+| Resilience | Resilience4j Circuit Breaker |
+| Tracing | Zipkin (distributed trace IDs across all services) |
+| Testing | Spring Cloud Contract, Playwright E2E |
+| Infra | Docker Compose with healthchecks |
 
------
+---
 
-8, to run the React developer server go to UserInputServer folder and type this: 
-npm start
+## Key implementation highlights
 
-9, You can check the developer React app here: localhost:3000
+- **JWT via HttpOnly cookie** — the token never touches JavaScript; the browser sends it automatically on every request
+- **Transactional Outbox** — person creation and its Kafka event are written in one DB transaction; a background scheduler publishes reliably (at-least-once delivery)
+- **Circuit Breaker** — DatabaseServer wraps calls to AuthService in a Resilience4j breaker; auth failures degrade gracefully instead of cascading
+- **Service healthchecks** — Docker Compose waits for `/actuator/health` to return `UP` on each service before starting dependents
+- **Distributed tracing** — every request carries a `traceId` and `spanId` across all services; traces are visible at http://localhost:9411
 
-10, Spring next tasks, coming soon in the upcoming Spring branch:
-1. Validation
-2. Global Exception Handling
-3. Data Transfer Object
-4. Pagination & Sorting
-5. Unit & Integration Testing
-6. Swagger / OpenAPI
-----
-7. Spring Boot Actuator
-8. Spring Profiles
-9. @Scheduled
-10. Spring Events
-11. Caching (@Cacheable)
+---
 
-11, How to deploy your codes to the Google Cloud (GCP):
-1. Sign in to cloud console with google credentials, add billing method, create a project.
-2. Install and setup gcloud to be able to create instances from your terminal
-3. Create a virtual instance on GCP with command: 
-   gcloud compute instances create database-server \
-   --zone=us-east1-b \
-   --machine-type=e2-micro \
-   --image-family=debian-11 \
-   --image-project=debian-cloud \
-   --tags=mysql-server
-4. Open firewall on 3306 port:
-   gcloud compute firewall-rules create allow-mysql-access \
-   --direction=INGRESS \
-   --priority=1000 \
-   --network=default \
-   --action=ALLOW \
-   --rules=tcp:3306 \
-   --source-ranges={IP Address Range, or your IP}/32
-5. Step in with SSH command to install the required software: 
-   gcloud compute ssh database-server --zone=us-east1-b
-6. Install docker here: sudo apt-get update
-   sudo apt-get install -y docker.io
-   sudo systemctl start docker
-   sudo systemctl enable docker
-7. Lets docker create a mysql container and run: sudo docker run -d \
-   --name mysql-container \
-   -p 3306:3306 \
-   -e MYSQL_ROOT_PASSWORD=rootPassword \
-   -v mysql_data:/var/lib/mysql \
-   --restart always \
-   mysql:latest
-8. Install the docker containers into Cloud run. Use these commands where the Dockerfile is:
-   gcloud run deploy backend-service \
-   --image=us-east1-docker.pkg.dev/$PROJECT_ID/my-repo/backend \
-   --region=us-east1 \
-   --platform=managed \
-   --allow-unauthenticated
-9. Open the application frontend at: https://frontend-react-801953368913.us-east1.run.app
+## Roles
 
-ssh coppmand to mysql-server: gcloud compute ssh mysql-server --tunnel-through-iap
+Three roles are defined (`ADMIN`, `USER`, `GUEST`) and stored per account. Currently the default `admin` user is seeded on startup. Role-based access control (e.g. read-only for USER) is a planned next step.
 
-10, Terraform
-create main.trf file
-gcloud auth login
-gcloud auth application-default login
-install Terraform:
-- wget -O- https://rpm.releases.hashicorp.com/fedora/hashicorp.repo | sudo tee /etc/yum.repos.d/hashicorp.repo
-- sudo yum list available | grep hashicorp
-- sudo dnf -y install terraform
+---
 
-- terraform init
-Create the project in Google Cloud Console, check its full project id name: testterraform-485917
- modify the main.tf project name to it.
-- terraform plan
-- terraform apply
+## What's next / learning roadmap
 
-- terraform destroy
+- [ ] Role-based authorization (ADMIN vs USER permissions)
+- [ ] Kubernetes deployment (Minikube config already started)
+- [ ] Prometheus + Grafana metrics
+- [ ] CI/CD with GitHub Actions
+- [ ] Secret management (Vault or GCP Secret Manager)
 
-10B, AWS
-11, CI/CD: A "Zero-Touch" Deployment (GitHub Actions)
-12, Orchestration: Kubernetes (K8s), Helm, maybe Docker Swarm
-13, Observability: CloudWatch (AWS) or Cloud Logging/Monitoring (GCP). Maybe Prometheus and Grafana. Logging: Elasticsearch, Logstash, Kibana.
-14, Secret Management: AWS Secrets Manager-t or GCP Secret Manager
+---
 
-## 🌐 Event-Driven Microservices Architecture
-1. **Database-per-Service**: Decoupled schemas (`authdb` and `usersdb`) in PostgreSQL to separate `AuthService` and `DatabaseServer`.
-2. **API Gateway & JWT Token Relay**: Configured Nginx Gateway (`UserInputServer`) to route requests. Implemented stateless HMAC-SHA256 signature verification in `DatabaseServer`.
-3. **Transactional Outbox Pattern**: Implemented transactional event persistence (`outbox_messages` table) with a background scheduler (`OutboxPublisher` polling every 5s) to guarantee reliable at-least-once Kafka event delivery.
+## Observability
+
+| Service | URL |
+|---|---|
+| App | http://localhost:9080 |
+| Zipkin traces | http://localhost:9411 |
+| Auth actuator | http://localhost:9083/actuator/health |
+| DB actuator | http://localhost:9081/actuator/health |

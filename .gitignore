@@ -11,3 +11,17 @@ out/
 /UserInputServer/node_modules/
 
 /DatabaseServer/src/main/resources/secrets.properties
+
+# Tools and binaries
+.metals/
+.vscode/
+minikube-linux-amd64
+
+# Test artifacts
+UserInputServer/test-results/
+
+# AI-generated scratch files
+AI/
+
+# Local documentation
+docs/
