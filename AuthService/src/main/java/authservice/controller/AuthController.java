@@ -33,6 +33,20 @@ public class AuthController {
         return ResponseEntity.ok(exists);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        ResponseCookie clearCookie = ResponseCookie.from("jwt-token", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, clearCookie.toString())
+                .body("Logged out.");
+    }
+
     @PostMapping
     public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody LoginRequest request) {
             Authentication authentication = authenticationManager.authenticate(

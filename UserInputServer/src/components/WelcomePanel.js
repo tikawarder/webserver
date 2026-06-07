@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function WelcomePanel() {
+function WelcomePanel({ onLoginSuccess, onLogout }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [status, setStatus] = useState('');
@@ -32,6 +32,9 @@ function WelcomePanel() {
                 setStatus('Login successful! Cookie set.');
                 setIsLoggedIn(true);
                 setFieldErrors({});
+                if (onLoginSuccess) {
+                    onLoginSuccess();
+                }
 
             } else if (response.status === 400) {
                             const errorData = await response.json();
@@ -51,19 +54,21 @@ function WelcomePanel() {
             <div style={{ padding: '20px', textAlign: 'center' }}>
                 <h1>Welcome back, {username}!</h1>
                 <p>You are successfully logged in.</p>
-                <button onClick={() => {
+                <button onClick={async () => {
+                    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
                     setIsLoggedIn(false);
                     setStatus('');
                     setUsername('');
                     setPassword('');
                     setFieldErrors({});
+                    if (onLogout) onLogout();
                 }}>Logout</button>
             </div>
         );
     }
 
     return (
-        <div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px', maxWidth: '400px', margin: '20px auto' }}>
+        <div style={{ width: '100%', maxWidth: '400px' }}>
             <h1>Login</h1>
             <p>Please enter your credentials:</p>
 
