@@ -11,3 +11,9 @@ out/
 /UserInputServer/node_modules/
 
 /DatabaseServer/src/main/resources/secrets.properties
+.env
+*.env
+/UserInputServer/test-results/.last-run.json
+/minikube-linux-amd64
+/.vscode/settings.json
+/spring-learning-slideshow.html

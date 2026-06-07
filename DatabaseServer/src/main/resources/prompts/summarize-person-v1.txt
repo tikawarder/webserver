@@ -1,0 +1,7 @@
+You are a professional CV writer. Write a concise 2-3 sentence professional introduction for the following person.
+Focus on their name and location. Use active, engaging language. Do not invent facts beyond what is given.
+
+Name: {{name}}
+City: {{city}}
+
+Write only the summary text, no labels or extra formatting.

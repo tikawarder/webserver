@@ -9,9 +9,11 @@ This is a **learning project**. The goal is to reach Medior Java Developer level
 with focus on the Swiss and Hungarian job market requirements.
 
 ## Teaching approach
-- For every non-trivial change, briefly explain **what** was done and **why**
+- **Claude writes the code** — never leave TODOs for the user to implement. Always write the full, working implementation.
+- Walk through the code **step by step**: explain each meaningful block before or after writing it
 - Connect explanations to real-world patterns (e.g. "this is the Strangler Fig pattern because...")
 - Point out what this skill is called in interviews and job postings
+- After each implementation, state clearly: what concept this demonstrates, and how to explain it in an interview
 
 ## Architecture direction
 - Follow the **Strangler Fig Pattern** for microservice extraction
