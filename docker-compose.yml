@@ -26,6 +26,8 @@ services:
     depends_on:
       postgres_db:
         condition: service_healthy
+      zipkin:
+        condition: service_started
     ports:
       - "9083:8083"
     environment:
@@ -33,6 +35,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=user
       - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
     networks:
       - app-network
 
@@ -43,6 +46,8 @@ services:
     depends_on:
       postgres_db:
         condition: service_healthy
+      zipkin:
+        condition: service_started
     ports:
       - "9081:8080"
     environment:
@@ -51,6 +56,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
     networks:
       - app-network
 
@@ -60,10 +66,12 @@ services:
     container_name: notification_service
     depends_on:
       - kafka
+      - zipkin
     ports:
       - "9082:8082"
     environment:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
     networks:
       - app-network
 
@@ -74,8 +82,11 @@ services:
     depends_on:
       - auth-service
       - database-server
+      - zipkin
     ports:
       - "9090:8090"
+    environment:
+      - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
     networks:
       - app-network
 
@@ -113,6 +124,14 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - app-network
+
+  zipkin:
+    image: openzipkin/zipkin:3
+    container_name: zipkin
+    ports:
+      - "9411:9411"
     networks:
       - app-network
 
