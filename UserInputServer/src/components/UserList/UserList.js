@@ -13,6 +13,7 @@ function UserList({ users, loading, error, onRefresh }) {
                      onClick={onRefresh}
                      disabled={loading}
                      className="refresh-button"
+                     data-testid="refresh-button"
                      title="Reload user list"
                  >
                      {loading ? 'Refreshing...' : '↻ Refresh'}
@@ -27,7 +28,7 @@ function UserList({ users, loading, error, onRefresh }) {
              )}
 
              {/* List block */}
-             <div className="scrollable-list">
+             <div className="scrollable-list" data-testid="user-list">
                  {users.map(user => (
                      <UserItem
                          key={user.id}
@@ -36,13 +37,14 @@ function UserList({ users, loading, error, onRefresh }) {
                          // Handle backend field names flexibly (dob vs birthDay)
                          birthDay={user.dob || user.birthDay}
                          city={user.city}
+                         data-testid="user-item"
                      />
                  ))}
              </div>
 
              {/* Empty state */}
              {!loading && users.length === 0 && !error && (
-                 <p className="empty-message">No users found in the database.</p>
+                 <p className="empty-message" data-testid="empty-state">No users found in the database.</p>
              )}
          </div>
      );

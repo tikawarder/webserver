@@ -52,9 +52,9 @@ function WelcomePanel({ onLoginSuccess, onLogout }) {
     if (isLoggedIn) {
         return (
             <div style={{ padding: '20px', textAlign: 'center' }}>
-                <h1>Welcome back, {username}!</h1>
+                <h1 data-testid="welcome-message">Welcome back, {username}!</h1>
                 <p>You are successfully logged in.</p>
-                <button onClick={async () => {
+                <button data-testid="logout-button" onClick={async () => {
                     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
                     setIsLoggedIn(false);
                     setStatus('');
@@ -78,6 +78,7 @@ function WelcomePanel({ onLoginSuccess, onLogout }) {
                     <input
                         type="text"
                         id="username"
+                        data-testid="username-input"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
 //                        required
@@ -95,6 +96,7 @@ function WelcomePanel({ onLoginSuccess, onLogout }) {
                     <input
                         type="password"
                         id="password"
+                        data-testid="password-input"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
 //                        required
@@ -106,7 +108,7 @@ function WelcomePanel({ onLoginSuccess, onLogout }) {
                                             </span>
                                         )}
                 </div>
-                <button type="submit" style={{ padding: '10px 20px', cursor: 'pointer' }}>Login</button>
+                <button type="submit" data-testid="login-button" style={{ padding: '10px 20px', cursor: 'pointer' }}>Login</button>
             </form>
 
             {status && (

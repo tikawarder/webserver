@@ -93,23 +93,35 @@ Three roles are defined (`ADMIN`, `USER`, `GUEST`) and stored per account. Curre
 
 ## E2E Testing
 
-End-to-end tests are written with [Playwright](https://playwright.dev/) and cover the core user flow: login → add a person → verify it appears in the list.
+End-to-end tests are written with [Playwright](https://playwright.dev/).
+The app must be running (`docker compose up`) before executing the tests.
 
 ```bash
 cd UserInputServer
 npm install
 npx playwright install chromium
-npm run e2e
 ```
 
-The app must be running at `http://localhost:9080` before executing the tests.
+| Command | Mode |
+|---|---|
+| `npm run e2e` | Headed, sequential, slowMo=500ms — watch it run |
+| `npm run e2e:fast` | Headless, 4 parallel workers — ~6s, use after merges |
+| `npx playwright test --ui` | Interactive UI — pick tests, inspect steps, replay |
 
-```
-UserInputServer/
-├── e2e/
-│   └── person-flow.spec.js   ← test file
-└── playwright.config.js      ← baseURL and browser config
-```
+### What is covered
+
+| File | Tests | What it checks |
+|---|---|---|
+| `smoke.spec.js` | 3 | App loads, login succeeds, logout works |
+| `auth.spec.js` | 2 | Form hidden before login, wrong password shows error |
+| `person-flow.spec.js` | 1 | Full flow: login → create person → cleanup |
+| `validation.spec.js` | 3 | Empty form errors, valid save resets form, DELETE endpoint |
+
+### Implementation notes
+
+- All interactive elements have `data-testid` attributes — selectors are stable across UI text changes
+- Each test cleans up after itself via `DELETE /api/persons/{id}` — no data accumulates between runs
+- `CI=true` switches to headless + parallel mode; GitHub Actions sets this automatically
 
 ---
 

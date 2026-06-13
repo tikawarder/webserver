@@ -55,31 +55,32 @@ function InputForm({ onSubmissionSuccess }) {
                <form onSubmit={handleSubmit}>
 
                  {globalError && (
-                              <div style={{ color: 'red', marginBottom: '15px', padding: '10px', backgroundColor: '#ffe6e6', borderRadius: '5px' }}>
+                              <div data-testid="form-error" style={{ color: 'red', marginBottom: '15px', padding: '10px', backgroundColor: '#ffe6e6', borderRadius: '5px' }}>
                                   ⚠️ {globalError}
                               </div>
                           )}
 
                  <div className="field-group">
                    <label>Name:</label>
-                   <input type="text" name="name"/>
+                   <input type="text" name="name" data-testid="name-input"/>
                    {fieldErrors.name && <span style={{color: 'red', fontSize: '0.8rem'}}>{fieldErrors.name}</span>}
                  </div>
 
                  <div className="field-group">
                    <label>Date of Birth:</label>
-                   <input type="date" name="birthDay"/>
+                   <input type="date" name="birthDay" data-testid="birthday-input"/>
                    {fieldErrors.birthDay && <span style={{color: 'red', fontSize: '0.8rem'}}>{fieldErrors.birthDay}</span>}
                  </div>
 
                  <div className="field-group">
                    <label>City:</label>
-                   <input type="text" name="city" />
+                   <input type="text" name="city" data-testid="city-input"/>
                    {fieldErrors.city && <span style={{color: 'red', fontSize: '0.8rem'}}>{fieldErrors.city}</span>}
                  </div>
 
                  <button
                    type="submit"
+                   data-testid="save-button"
                    className="submit-button"
                    disabled={loading}
                  >

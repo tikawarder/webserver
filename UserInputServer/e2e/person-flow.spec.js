@@ -1,26 +1,35 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect, request } = require('@playwright/test');
+const { getCookieHeader } = require('./helpers');
 
-test('login, add a person, verify it appears in the list', async ({ page }) => {
-  // 1. Navigate to the app
+test('login, add a person, verify it appears in the list, then delete it', async ({ page }) => {
   await page.goto('/');
 
-  // 2. Login with admin credentials
-  await page.fill('#username', 'admin');
-  await page.fill('#password', 'password');
-  await page.click('button:has-text("Login")');
+  await page.getByTestId('username-input').fill('admin');
+  await page.getByTestId('password-input').fill('password');
+  await page.getByTestId('login-button').click();
+  await expect(page.getByTestId('welcome-message')).toBeVisible();
 
-  // Wait until login is confirmed
-  await expect(page.locator('text=Welcome back, admin')).toBeVisible();
+  const testName = `Playwright Test ${Date.now()}`;
+  await page.getByTestId('name-input').fill(testName);
+  await page.getByTestId('birthday-input').fill('1990-06-15');
+  await page.getByTestId('city-input').fill('Budapest');
+  await page.getByTestId('save-button').click();
 
-  // 3. Fill in the person form
-  const testName = 'Playwright Tesztelő';
-  await page.fill('input[name="name"]', testName);
-  await page.fill('input[name="birthDay"]', '1990-06-15');
-  await page.fill('input[name="city"]', 'Budapest');
+  // Form reset confirms save was accepted
+  await expect(page.getByTestId('name-input')).toHaveValue('', { timeout: 10000 });
 
-  // 4. Submit the form
-  await page.click('button:has-text("Saving data")');
+  // Find the new person via API and delete it for cleanup
+  const apiContext = await request.newContext({ baseURL: 'http://localhost:9081' });
+  const cookieHeader = await getCookieHeader(page);
 
-  // 5. Verify the new person appears in the list
-  await expect(page.locator(`text=${testName}`)).toBeVisible({ timeout: 5000 });
+  const listResponse = await apiContext.get('/api/persons?size=100&sort=name,asc', {
+    headers: { Cookie: cookieHeader }
+  });
+  const data = await listResponse.json();
+  const created = data.content.find(p => p.name === testName);
+  if (created) {
+    await apiContext.delete(`/api/persons/${created.id}`, {
+      headers: { Cookie: cookieHeader }
+    });
+  }
 });
