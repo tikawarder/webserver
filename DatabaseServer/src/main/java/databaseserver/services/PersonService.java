@@ -33,6 +33,11 @@ public class PersonService {
     }
 
     @Transactional
+    public void deletePerson(Long id) {
+        personRepository.deleteById(id);
+    }
+
+    @Transactional
     public PersonDto createPerson(PersonDto personDto) {
         // Lekérjük a Spring Security-ból a bejelentkezett felhasználót
         String currentUsername = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
