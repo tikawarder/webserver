@@ -1,137 +1,97 @@
-The study plan (agreed with Adorjan)
-- To be able to tell "what is web service".
-- REST web services (jax-rs)
-  - SOAP as second hand :-(
-- Plan an app that uses web service. It can receive and send REST messages.
-- Implement that app.
-- Do the same with Spring Boot
-- Do the same in Cloud world (GCP or other)
-  
-My detailed plan with milestones:
+# Java Learning Portfolio
 
-1, Servlets                                       - Create servlets with jsp's that communicate with each other
+A self-built web application documenting a full Java backend learning journey — from Servlets to Microservices.
+Each branch represents a completed learning milestone, all merged into `master` as a chronological history.
 
-2, Forms and user inputs. Store in Database.      - Use a form on the UI and get data from user. Store these data.
-                                                  - Get data from Database with different SQL commands.
+---
 
-3, REST and SOAP communication.                   - Just 1 simple trial for SOAP.
-                                                  - Implement an app with REST (app and database communication). Use MVC.
+## Learning path (merged to master)
 
-4, Frontend/React basics.                         - develope an easy ui with html, css and javascript.
-                                                  - start some basic React to learn
+| Branch | What was learned |
+|---|---|
+| `master` | Base — full learning history in chronological order |
+| `5.SpringBoot` | Spring MVC, JPA, Validation, DTOs, Pagination, Unit & Integration testing, `@Async` + `CompletableFuture` |
+| `LearnVulnerabilities` | OWASP Top 10 in practice: XSS, CSRF, IDOR, SQL injection, SSRF — with fixes |
+| `React` | React basics, components, fetch API, webpack, npm |
+| `6.Cloud` | GCP deployment, Docker on Cloud Run, Terraform |
+| `sql` | JPA/SQL deep dive: N+1, ACID, JOINs, all 4 relationship types, LAZY/EAGER, Flyway migrations, Optimistic Locking |
 
-extra: Learn vulnerabilities                      - add a commit that introduce a security issue
-                                                  - on the second commit, solve it
+---
 
-5, Spring Boot                                    - Implement the above topics into Spring Boot. Use Spring MVC and other functions.
+## Current development
 
-6, Google Cloud Provider (GCP)                    - Move the project to GCP
+**Branch:** `microservices`
 
-Preparing:
-1, use java 17
-2, install Docker CLI
-3, Git has to be installed
+Full microservices stack:
+- Spring Cloud Gateway
+- AuthService (JWT)
+- DatabaseServer
+- NotificationService
+- Kafka (Transactional Outbox Pattern)
+- Resilience4j circuit breaker
+- Zipkin distributed tracing
+- Docker Compose with healthchecks
 
-Start:
+---
 
-1, Clone this repository
+## How to run (sql branch — SQL/JPA demo)
 
-2, type ./start.sh to start the deployment process
+**Prerequisites:** Docker
 
-    - it will start 3 containers (Mysql database, UserInputServer, DatabaseServer)
-    - starts the UserInputServer with the built-in nginx server
+```bash
+git checkout sql
+cd /path/to/webserver
+docker compose up --build
+```
 
-3, visit localhost:8080
+App starts at `http://localhost:8081`
 
-5, the Server receives the data and persist to the Mysql database
+### Demo endpoints
 
-5, then new person with its data will be sent to the DataBaseServer with Rest API
+```bash
+# N+1 problem — watch the logs for multiple vs single SQL
+GET  /api/demo/n1/broken
+GET  /api/demo/n1/fixed
 
-## 🔒 Vulnerabilities (Security Practice)
+# ACID + @Transactional rollback
+POST /api/demo/acid/transfer?fromId=1&toId=2&amount=100
+POST /api/demo/acid/transfer-fail?fromId=1&toId=2&amount=10
 
-7, other direction of data happens when the UserInputServer fetches persons from the DatabaseServer
+# JOIN types
+GET  /api/demo/join/inner
+GET  /api/demo/join/left
 
------
+# Aggregates (GROUP BY, SUM, COUNT)
+GET  /api/demo/aggregates/revenue-per-city
+GET  /api/demo/aggregates/order-count
 
-8, to run the React developer server go to UserInputServer folder and type this: 
-npm start
+# Optimistic Locking (@Version) conflict demo
+POST /api/demo/optimistic-lock/demo?orderId=1
 
-9, You can check the developer React app here: localhost:3000
+# JPA relationships (OneToOne, OneToMany, ManyToMany, FetchType)
+GET  /api/relations/one-to-one/lazy/1
+GET  /api/relations/one-to-one/join-fetch
+GET  /api/relations/many-to-many/orders-with-tags
+GET  /api/relations/full-customer/1
+```
 
-10, Spring next tasks, coming soon in the upcoming Spring branch:
-1. Validation
-2. Global Exception Handling
-3. Data Transfer Object
-4. Pagination & Sorting
-5. Unit & Integration Testing
-6. Swagger / OpenAPI
-----
-7. Spring Boot Actuator
-8. Spring Profiles
-9. @Scheduled
-10. Spring Events
-11. Caching (@Cacheable)
+### What Flyway does on first start
 
-11, How to deploy your codes to the Google Cloud (GCP):
-1. Sign in to cloud console with google credentials, add billing method, create a project.
-2. Install and setup gcloud to be able to create instances from your terminal
-3. Create a virtual instance on GCP with command: 
-   gcloud compute instances create database-server \
-   --zone=us-east1-b \
-   --machine-type=e2-micro \
-   --image-family=debian-11 \
-   --image-project=debian-cloud \
-   --tags=mysql-server
-4. Open firewall on 3306 port:
-   gcloud compute firewall-rules create allow-mysql-access \
-   --direction=INGRESS \
-   --priority=1000 \
-   --network=default \
-   --action=ALLOW \
-   --rules=tcp:3306 \
-   --source-ranges={IP Address Range, or your IP}/32
-5. Step in with SSH command to install the required software: 
-   gcloud compute ssh database-server --zone=us-east1-b
-6. Install docker here: sudo apt-get update
-   sudo apt-get install -y docker.io
-   sudo systemctl start docker
-   sudo systemctl enable docker
-7. Lets docker create a mysql container and run: sudo docker run -d \
-   --name mysql-container \
-   -p 3306:3306 \
-   -e MYSQL_ROOT_PASSWORD=rootPassword \
-   -v mysql_data:/var/lib/mysql \
-   --restart always \
-   mysql:latest
-8. Install the docker containers into Cloud run. Use these commands where the Dockerfile is:
-   gcloud run deploy backend-service \
-   --image=us-east1-docker.pkg.dev/$PROJECT_ID/my-repo/backend \
-   --region=us-east1 \
-   --platform=managed \
-   --allow-unauthenticated
-9. Open the application frontend at: https://frontend-react-801953368913.us-east1.run.app
+```
+Migrating schema `usersdb` to version "1 - create core tables"
+Migrating schema `usersdb` to version "2 - create demo tables"
+Migrating schema `usersdb` to version "3 - add optimistic locking"
+Successfully applied 3 migrations
+```
 
-ssh coppmand to mysql-server: gcloud compute ssh mysql-server --tunnel-through-iap
+On subsequent starts: `Schema is up to date. No migration necessary.`
 
-10, Terraform
-create main.trf file
-gcloud auth login
-gcloud auth application-default login
-install Terraform:
-- wget -O- https://rpm.releases.hashicorp.com/fedora/hashicorp.repo | sudo tee /etc/yum.repos.d/hashicorp.repo
-- sudo yum list available | grep hashicorp
-- sudo dnf -y install terraform
+---
 
-- terraform init
-Create the project in Google Cloud Console, check its full project id name: testterraform-485917
- modify the main.tf project name to it.
-- terraform plan
-- terraform apply
+## Next learning phases
 
-- terraform destroy
-
-10B, AWS
-11, CI/CD: A "Zero-Touch" Deployment (GitHub Actions)
-12, Orchestration: Kubernetes (K8s), Helm, maybe Docker Swarm
-13, Observability: CloudWatch (AWS) or Cloud Logging/Monitoring (GCP). Maybe Prometheus and Grafana. Logging: Elasticsearch, Logstash, Kibana.
-14, Secret Management: AWS Secrets Manager-t or GCP Secret Manager
+| Branch | Builds on | Topic |
+|---|---|---|
+| `PlaywrightE2E` | `microservices` | End-to-end tests |
+| `kubernetes` | `microservices` | K8s deployment (Minikube) |
+| `ci-cd` | `kubernetes` | GitHub Actions pipeline |

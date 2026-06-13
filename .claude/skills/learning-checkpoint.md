@@ -5,9 +5,8 @@
 
 ## Steps
 
-1. **Read the roadmap and development plan**
-   - Load `microservices_roadmap.md` — the 8-step weekly plan
-   - Load `Szakmai_Fejlodesi_Terv.md` — the overall Medior developer goal
+1. **Read the branch strategy**
+   - Load `docs/branches.md` — the planned learning path and merge order
 
 2. **Inspect the current codebase state**
    - Run `git log --oneline -20` to see recent commits

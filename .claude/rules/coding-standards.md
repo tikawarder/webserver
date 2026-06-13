@@ -13,11 +13,6 @@ trigger: always_on
 - Always ask before any `git commit`, `git push`, or destructive git operations
 - When asked to commit, suggest a message and wait for approval
 
-## Protected files
-- Do **not** modify `Szakmai_Fejlodesi_Terv.md` without explicit permission
-- Do **not** modify `microservices_roadmap.md` without explicit permission
-- Treat these as reference documents, not editable targets
-
 ## Code quality
 - No unnecessary abstractions — solve the immediate problem only
 - No comments that describe WHAT the code does, only WHY (if non-obvious)
