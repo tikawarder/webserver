@@ -8,4 +8,3 @@ CREATE TABLE IF NOT EXISTS users (
     city VARCHAR(100) NOT NULL
 );
 
-CREATE DATABASE authdb;

@@ -46,6 +46,13 @@ Login credentials: `admin` / `password`
 
 The gateway and frontend wait for the backend services to become healthy before starting — no manual ordering needed.
 
+> **Fresh install note:** PostgreSQL init scripts (`db/`) only run on an empty data volume.
+> If you previously ran another branch and the volume already exists, run:
+> ```bash
+> docker compose down -v && docker compose up --build
+> ```
+> The `-v` flag removes the volume so both `usersdb` and `authdb` are created from scratch.
+
 ---
 
 ## Tech stack
