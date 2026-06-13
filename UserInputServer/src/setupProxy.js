@@ -4,7 +4,7 @@ module.exports = function(app) {
   app.use(
     '/api',
     createProxyMiddleware({
-      target: 'https://backend-service-801953368913.us-east1.run.app',
+      target: 'http://localhost:9081',
       changeOrigin: true,
       logLevel: 'debug',
     })

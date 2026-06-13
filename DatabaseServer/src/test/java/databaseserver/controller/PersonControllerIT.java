@@ -2,6 +2,8 @@ package databaseserver.controller;
 
 import databaseserver.model.dto.PersonDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import databaseserver.services.kafka.KafkaProducerService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,9 @@ class PersonControllerIT {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockBean
+    private KafkaProducerService kafkaProducerService;
 
     @Test
     @DisplayName("Smoke test: If the whole connection is ready, we should receive empty list from the database.")

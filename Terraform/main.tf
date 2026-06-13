@@ -71,7 +71,7 @@ resource "google_compute_instance" "mysql_server" {
   boot_disk {
     initialize_params {
       image = "debian-cloud/debian-11"
-      size  = 30  # Itt állítjuk be a 30GB-ot az ingyenes kerethez
+      size  = 30            # Itt állítjuk be a 30GB-ot az ingyenes kerethez
       type  = "pd-standard" # HDD (Ingyenes típus)
     }
   }
@@ -99,9 +99,9 @@ resource "google_compute_instance" "mysql_server" {
 
 # --- 6. BACKEND SERVICE (Cloud Run) ---
 resource "google_cloud_run_service" "backend" {
-  name     = "backend-service"
+  name       = "backend-service"
   depends_on = [google_project_service.run_api, google_project_service.compute_api]
-  location = "us-east1" # Fontos: Ugyanaz a régió, mint a VM!
+  location   = "us-east1" # Fontos: Ugyanaz a régió, mint a VM!
 
   template {
     metadata {
@@ -141,10 +141,10 @@ resource "google_cloud_run_service" "backend" {
         }
 
         resources {
-           limits = {
-             memory = "512Mi" # Cloud Run memória limit
-             cpu    = "1000m"
-           }
+          limits = {
+            memory = "512Mi" # Cloud Run memória limit
+            cpu    = "1000m"
+          }
         }
       }
     }
@@ -176,9 +176,9 @@ resource "google_cloud_run_service_iam_policy" "noauth_backend" {
 
 # --- 7. FRONTEND SERVICE (Cloud Run) ---
 resource "google_cloud_run_service" "frontend" {
-  name     = "frontend-service"
+  name       = "frontend-service"
   depends_on = [google_project_service.run_api]
-  location = "us-east1"
+  location   = "us-east1"
 
   template {
     spec {
