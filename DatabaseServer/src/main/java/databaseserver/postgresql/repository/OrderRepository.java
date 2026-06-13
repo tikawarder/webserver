@@ -2,9 +2,11 @@ package databaseserver.postgresql.repository;
 
 import databaseserver.postgresql.model.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -68,4 +70,18 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
      */
     @Query("SELECT AVG(o.amount) FROM Order o WHERE o.customer.id = :customerId")
     BigDecimal averageAmountByCustomer(@Param("customerId") Long customerId);
+
+    // =========================================================================
+    // OPTIMISTIC LOCKING — direct version-checked UPDATE
+    // =========================================================================
+
+    /**
+     * Simulates exactly what Hibernate does under the hood for @Version entities:
+     * appends AND version=:expectedVersion to the UPDATE.
+     * Returns the number of rows affected: 1 = success, 0 = stale version (conflict).
+     */
+    @Modifying
+    @Transactional
+    @Query("UPDATE Order o SET o.product = :product, o.version = o.version + 1 WHERE o.id = :id AND o.version = :expectedVersion")
+    int tryUpdateWithVersion(@Param("id") Long id, @Param("product") String product, @Param("expectedVersion") Long expectedVersion);
 }

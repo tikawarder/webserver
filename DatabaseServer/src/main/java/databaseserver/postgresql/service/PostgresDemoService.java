@@ -9,10 +9,12 @@ import databaseserver.postgresql.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -248,6 +250,65 @@ public class PostgresDemoService {
                         row -> (String) row[0],
                         row -> (Long) row[1]
                 ));
+    }
+
+    // =========================================================================
+    // OPTIMISTIC LOCKING DEMO
+    // =========================================================================
+
+    /**
+     * Helper called by demonstrateOptimisticLock — runs in its own NEW transaction.
+     * REQUIRES_NEW means: even if a transaction is already active, this one is separate.
+     * When this method returns, the transaction commits and the version in DB increments.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateOrderInNewTransaction(Long orderId, String newProduct) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+        order.setProduct(newProduct);
+        log.info("[OPTIMISTIC LOCK] Thread 1 committed: order#{} product='{}' version={}",
+                orderId, newProduct, order.getVersion() + 1);
+    }
+
+    /**
+     * Demonstrates Optimistic Locking conflict between two concurrent "threads".
+     *
+     * Step 1: Record the current version (N) of the order.
+     * Step 2: Thread 1 updates via JPA @Version — DB version becomes N+1.
+     * Step 3: Thread 2 tries the same UPDATE but with the stale version=N in the WHERE clause.
+     *         Returns 0 rows affected → exactly what triggers OptimisticLockException in real JPA.
+     *
+     * The JPQL query in tryUpdateWithVersion() replicates what Hibernate generates internally:
+     *   UPDATE demo_orders SET product=?, version=version+1 WHERE id=? AND version=?
+     */
+    public Map<String, Object> demonstrateOptimisticLock(Long orderId) {
+        Order current = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+        long versionBefore = current.getVersion();
+        log.info("[OPTIMISTIC LOCK] Starting demo: order#{} at version={}", orderId, versionBefore);
+
+        // Thread 1: proper JPA update — version increments from N to N+1
+        updateOrderInNewTransaction(orderId, "Thread_1_winner");
+        log.info("[OPTIMISTIC LOCK] Thread 1 committed: version {} → {}", versionBefore, versionBefore + 1);
+
+        // Thread 2: direct version-checked UPDATE with the now-stale version=N
+        // This replicates exactly what Hibernate does: WHERE id=? AND version=N
+        int rowsAffected = orderRepository.tryUpdateWithVersion(orderId, "Thread_2_loser", versionBefore);
+        log.info("[OPTIMISTIC LOCK] Thread 2 UPDATE affected {} rows (expected 0 — stale version)", rowsAffected);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        if (rowsAffected == 0) {
+            result.put("winner", "Thread 1 committed: version " + versionBefore + " → " + (versionBefore + 1));
+            result.put("loser",  "Thread 2 rejected: 0 rows updated — DB already has version=" + (versionBefore + 1) + ", Thread 2 held stale version=" + versionBefore);
+            result.put("sql_that_failed", "UPDATE demo_orders SET product='Thread_2_loser', version=version+1 WHERE id=" + orderId + " AND version=" + versionBefore + "  →  0 rows (version mismatch)");
+            result.put("explanation",
+                    "This is exactly what Hibernate does internally with @Version. " +
+                    "No DB lock is ever held. The conflict is detected at commit time: " +
+                    "if the WHERE version=N matches 0 rows, Hibernate throws ObjectOptimisticLockingFailureException.");
+        } else {
+            result.put("result", "BUG: Thread 2 should not have succeeded (version was already incremented).");
+        }
+        return result;
     }
 
     // =========================================================================

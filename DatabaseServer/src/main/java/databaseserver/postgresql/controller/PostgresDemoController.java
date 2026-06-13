@@ -144,4 +144,22 @@ public class PostgresDemoController {
     public ResponseEntity<Map<String, Long>> orderCount() {
         return ResponseEntity.ok(service.orderCountPerCustomer());
     }
+
+    // =========================================================================
+    // OPTIMISTIC LOCKING
+    // =========================================================================
+
+    /**
+     * Demonstrates @Version-based Optimistic Locking conflict.
+     *
+     * Thread 1 updates the order in its own transaction → version increments in DB.
+     * Thread 2 tries to save a stale copy (old version) → OptimisticLockException.
+     * No DB lock is held at any point.
+     *
+     * POST /api/demo/optimistic-lock/demo?orderId=1
+     */
+    @PostMapping("/optimistic-lock/demo")
+    public ResponseEntity<Map<String, Object>> optimisticLockDemo(@RequestParam Long orderId) {
+        return ResponseEntity.ok(service.demonstrateOptimisticLock(orderId));
+    }
 }

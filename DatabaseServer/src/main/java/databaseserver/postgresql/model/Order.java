@@ -34,6 +34,16 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * @Version — enables Optimistic Locking.
+     * Hibernate automatically increments this value on every UPDATE.
+     * If two transactions load the same entity and both try to save it,
+     * the second one fails with OptimisticLockException (stale version detected).
+     * No DB-level lock is held — concurrency is resolved at commit time.
+     */
+    @Version
+    private Long version;
+
     @Column(nullable = false)
     private String product;
 
