@@ -6,6 +6,8 @@ import databaseserver.model.entity.Person;
 import databaseserver.repository.PersonRepository;
 import databaseserver.repository.OutboxMessageRepository;
 import databaseserver.services.mapper.PersonMapper;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -37,11 +41,25 @@ class PersonServiceTest {
     @Mock
     private PersonMapper personMapper;
 
+    @Mock
+    private AuthServiceClient authServiceClient;
+
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @InjectMocks
     private PersonService personService;
+
+    @BeforeEach
+    void setUpSecurityContext() {
+        var auth = new UsernamePasswordAuthenticationToken("admin", null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    @AfterEach
+    void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
 
     @Test
     void getAllPersons_shouldReturnPageOfDtos() {
@@ -87,6 +105,7 @@ class PersonServiceTest {
         outputDto.setId(123L);
         outputDto.setName("New Person");
 
+        when(authServiceClient.validateUser("admin")).thenReturn(true);
         when(personMapper.toEntity(inputDto)).thenReturn(personEntity);
         when(personRepository.save(personEntity)).thenReturn(savedEntity);
         when(personMapper.toDto(savedEntity)).thenReturn(outputDto);
@@ -100,5 +119,12 @@ class PersonServiceTest {
         assertEquals("New Person", result.getName());
 
         verify(personRepository, times(1)).save(personEntity);
+    }
+
+    @Test
+    @DisplayName("Delete a person by id — repository deleteById is called once")
+    void deletePerson_shouldCallDeleteById() {
+        personService.deletePerson(42L);
+        verify(personRepository, times(1)).deleteById(42L);
     }
 }
