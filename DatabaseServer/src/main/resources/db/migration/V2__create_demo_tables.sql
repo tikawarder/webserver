@@ -2,48 +2,43 @@
 -- Entities: Customer, Order, CustomerProfile, Tag, demo_order_tags (ManyToMany join table)
 
 CREATE TABLE demo_customers (
-    id    BIGINT       AUTO_INCREMENT PRIMARY KEY,
+    id    BIGSERIAL    PRIMARY KEY,
     name  VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    city  VARCHAR(255) NOT NULL,
-    UNIQUE KEY uk_customer_email (email),
-    INDEX idx_customer_email (email),
-    INDEX idx_customer_city  (city)
+    email VARCHAR(255) NOT NULL UNIQUE,
+    city  VARCHAR(255) NOT NULL
 );
+
+CREATE INDEX idx_customer_email ON demo_customers (email);
+CREATE INDEX idx_customer_city  ON demo_customers (city);
 
 CREATE TABLE demo_orders (
-    id         BIGINT         AUTO_INCREMENT PRIMARY KEY,
-    product    VARCHAR(255)   NOT NULL,
-    amount     DECIMAL(38, 2) NOT NULL,
-    status     VARCHAR(50)    NOT NULL,
-    createdAt  DATETIME(6)    NOT NULL,
-    customer_id BIGINT        NOT NULL,
-    CONSTRAINT fk_order_customer FOREIGN KEY (customer_id) REFERENCES demo_customers (id),
-    INDEX idx_order_customer_id (customer_id),
-    INDEX idx_order_status      (status)
+    id          BIGSERIAL      PRIMARY KEY,
+    product     VARCHAR(255)   NOT NULL,
+    amount      DECIMAL(38, 2) NOT NULL,
+    status      VARCHAR(50)    NOT NULL,
+    createdat   TIMESTAMP      NOT NULL,
+    customer_id BIGINT         NOT NULL REFERENCES demo_customers (id)
 );
 
+CREATE INDEX idx_order_customer_id ON demo_orders (customer_id);
+CREATE INDEX idx_order_status      ON demo_orders (status);
+
 CREATE TABLE demo_profiles (
-    id          BIGINT       AUTO_INCREMENT PRIMARY KEY,
+    id          BIGSERIAL    PRIMARY KEY,
     phone       VARCHAR(255),
     bio         VARCHAR(255),
-    avatarUrl   VARCHAR(255),
-    customer_id BIGINT       NOT NULL,
-    UNIQUE KEY uk_profile_customer (customer_id),
-    CONSTRAINT fk_profile_customer FOREIGN KEY (customer_id) REFERENCES demo_customers (id)
+    avatarurl   VARCHAR(255),
+    customer_id BIGINT       NOT NULL UNIQUE REFERENCES demo_customers (id)
 );
 
 CREATE TABLE demo_tags (
-    id   BIGINT       AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    UNIQUE KEY uk_tag_name (name)
+    id   BIGSERIAL    PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
 );
 
 -- ManyToMany join table: Order <-> Tag
 CREATE TABLE demo_order_tags (
-    order_id BIGINT NOT NULL,
-    tag_id   BIGINT NOT NULL,
-    PRIMARY KEY (order_id, tag_id),
-    CONSTRAINT fk_ot_order FOREIGN KEY (order_id) REFERENCES demo_orders (id),
-    CONSTRAINT fk_ot_tag   FOREIGN KEY (tag_id)   REFERENCES demo_tags (id)
+    order_id BIGINT NOT NULL REFERENCES demo_orders (id),
+    tag_id   BIGINT NOT NULL REFERENCES demo_tags (id),
+    PRIMARY KEY (order_id, tag_id)
 );
