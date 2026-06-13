@@ -11,3 +11,28 @@ out/
 /UserInputServer/node_modules/
 
 /DatabaseServer/src/main/resources/secrets.properties
+
+### IDE / Editor ###
+.vscode/
+.metals/
+
+### Binaries ###
+minikube-linux-amd64
+
+### Internal docs / AI generated notes (not part of the codebase) ###
+AI/
+docs/GCP_*.md
+docs/Kubernetes_*.md
+docs/Monolit_*.md
+docs/microservices_roadmap.md
+docs/Szakmai_Fejlodesi_Terv.md
+docs/spring-learning-slideshow.html
+Szakmai_Fejlodesi_Terv.md
+microservices_roadmap.md
+spring-learning-slideshow.html
+GCP_*.md
+Kubernetes_*.md
+Monolit_Microservice_Migracio.md
+
+### Test results ###
+UserInputServer/test-results/
