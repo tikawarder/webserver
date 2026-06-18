@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import keycloak from './keycloak';
 import MainLayout from './components/MainLayout';
@@ -16,8 +16,14 @@ function App() {
   const [totalPages, setTotalPages] = useState(0);
   const [keycloakReady, setKeycloakReady] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Guard to prevent double initialization in React StrictMode
+  const isInitialized = useRef(false);
 
   useEffect(() => {
+    if (isInitialized.current) return;
+    isInitialized.current = true;
+
     keycloak.init({
       onLoad: 'check-sso',
       silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
