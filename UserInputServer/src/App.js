@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
+import keycloak from './keycloak';
 import MainLayout from './components/MainLayout';
 import WelcomePanel from './components/WelcomePanel';
 import InputForm from './components/InputForm';
@@ -13,43 +14,71 @@ function App() {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [keycloakReady, setKeycloakReady] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const fetchUsers = (pageNumber = 0) => {
+  useEffect(() => {
+    keycloak.init({
+      onLoad: 'check-sso',
+      silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+      pkceMethod: 'S256',
+    })
+      .then((authenticated) => {
+        setKeycloakReady(true);
+        setIsAuthenticated(authenticated);
+      })
+      .catch((err) => {
+        console.error('[Keycloak] Init failed:', err);
+        setKeycloakReady(true);
+      });
+  }, []);
+
+  const fetchUsers = useCallback((pageNumber = 0) => {
+    if (!keycloak.authenticated) return;
+
     setLoading(true);
     setError(null);
 
-  fetch('/api/persons?page=' + pageNumber + '&size=5&sort=name,asc', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
+    keycloak.updateToken(30)
+      .then(() => {
+        return fetch('/api/persons?page=' + pageNumber + '&size=5&sort=name,asc', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + keycloak.token,
+          },
+        });
+      })
       .then(response => {
-        if (response.status === 403 || response.status === 401) {
-            setIsAuthenticated(false);
-            throw new Error('Please sign in to view and manage users.');
+        if (response.status === 403) {
+          throw new Error('Access denied. You do not have permission for this action.');
+        }
+        if (response.status === 401) {
+          keycloak.login();
+          return;
         }
         if (!response.ok) { throw new Error(`HTTP error: ${response.status}`); }
         return response.json();
       })
       .then(data => {
-        setUsers(data.content || []);
-        setTotalPages(data.totalPages);
-        setPage(data.number);
+        if (data) {
+          setUsers(data.content || []);
+          setTotalPages(data.totalPages);
+          setPage(data.number);
+        }
         setLoading(false);
-        setIsAuthenticated(prev => prev === null ? true : prev);
       })
       .catch(err => {
         setError(err.message);
         setLoading(false);
       });
-  };
+  }, []);
 
   useEffect(() => {
-    fetchUsers(0);
-  }, []);
+    if (isAuthenticated) {
+      fetchUsers(0);
+    }
+  }, [isAuthenticated, fetchUsers]);
 
   const handleSuccessSubmit = () => {
     fetchUsers(page);
@@ -62,17 +91,25 @@ function App() {
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    setUsers([]);
   };
+
+  if (!keycloakReady) {
+    return <div style={{ textAlign: 'center', marginTop: '100px' }}>Initializing security...</div>;
+  }
 
   return (
     <MainLayout
-        welcomePanel={<WelcomePanel onLoginSuccess={handleLoginSuccess} onLogout={handleLogout} />}
+        welcomePanel={
+          <WelcomePanel
+            onLoginSuccess={handleLoginSuccess}
+            onLogout={handleLogout}
+          />
+        }
         formPanel={
-          isAuthenticated === true
+          isAuthenticated
             ? <InputForm onSubmissionSuccess={handleSuccessSubmit} />
-            : isAuthenticated === false
-              ? <AboutPanel />
-              : null
+            : <AboutPanel />
         }
         listPanel={
           <UserList

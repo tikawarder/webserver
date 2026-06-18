@@ -7,7 +7,7 @@ It demonstrates how independent Spring Boot services communicate, stay resilient
 
 ## What it does
 
-Users can log in, add people to a database, and browse the list with pagination.
+Users can log in via **Keycloak** (OAuth2/OIDC), add people to a database, and browse the list with pagination.
 Behind the scenes, every new person triggers a Kafka event that a separate notification service picks up — no direct coupling between services.
 
 ---
@@ -18,14 +18,27 @@ Behind the scenes, every new person triggers a Kafka event that a separate notif
 Browser
   └── localhost:9080
         └── Nginx (UserInputServer / React)
-              └── /api/** → Spring Cloud Gateway :8090
-                    ├── /api/auth/** → AuthService :8083  (JWT login/logout)
-                    └── /api/**      → DatabaseServer :8080 (person CRUD)
+              │
+              ├── Login → Redirect to Keycloak (localhost:8180)
+              │            ├── OAuth2 Authorization Code Flow + PKCE
+              │            └── Returns JWT Access Token (RS256 signed)
+              │
+              └── /api/** → Spring Cloud Gateway :8090 (validates JWT via JWKS)
+                    ├── /api/auth/** → AuthService :8083  (supplementary user validation)
+                    └── /api/**      → DatabaseServer :8080 (person CRUD + RBAC)
                                             └── Kafka → NotificationService :8082
                                             └── Zipkin (distributed tracing)
+
+Keycloak :8080
+  ├── Realm: webserver-realm
+  ├── Clients: react-app (public), gateway-client (confidential)
+  ├── Roles: ADMIN, USER, GUEST
+  └── Users: admin, user1, guest (all password: "password")
+
 PostgreSQL
-  ├── authdb   (accounts, roles)
-  └── usersdb  (persons, outbox_messages)
+  ├── usersdb       (persons, outbox_messages)
+  ├── authdb        (accounts, roles)
+  └── keycloakdb    (Keycloak internal data)
 ```
 
 ---
@@ -37,21 +50,25 @@ PostgreSQL
 ```bash
 git clone <repo>
 cd webserver
+git checkout keycloak-iam
 docker compose up --build
 ```
 
-Open **http://localhost:9080**
+Open **http://localhost:9080** → Click "Sign in with Keycloak" → Login: `admin` / `password`
 
-Login credentials: `admin` / `password`
-
-The gateway and frontend wait for the backend services to become healthy before starting — no manual ordering needed.
+| Service | URL |
+|---|---|
+| App | http://localhost:9080 |
+| Keycloak Admin | http://localhost:8180/admin (admin/admin) |
+| Zipkin traces | http://localhost:9411 |
+| Auth actuator | http://localhost:9083/actuator/health |
+| DB actuator | http://localhost:9081/actuator/health |
 
 > **Fresh install note:** PostgreSQL init scripts (`db/`) only run on an empty data volume.
 > If you previously ran another branch and the volume already exists, run:
 > ```bash
 > docker compose down -v && docker compose up --build
 > ```
-> The `-v` flag removes the volume so both `usersdb` and `authdb` are created from scratch.
 
 ---
 
@@ -61,7 +78,8 @@ The gateway and frontend wait for the backend services to become healthy before 
 |---|---|
 | Frontend | React, Nginx |
 | Gateway | Spring Cloud Gateway |
-| Auth | Spring Security, JWT (HttpOnly cookie) |
+| IAM | **Keycloak 26** (OAuth2, OpenID Connect, RBAC) |
+| Auth | Spring Security OAuth2 Resource Server (JWT via JWKS) |
 | Backend | Spring Boot 3.4.1, Spring Data JPA |
 | Database | PostgreSQL 15 |
 | Messaging | Apache Kafka, Transactional Outbox Pattern |
@@ -74,23 +92,45 @@ The gateway and frontend wait for the backend services to become healthy before 
 
 ## Key implementation highlights
 
-- **JWT via HttpOnly cookie** — the token never touches JavaScript; the browser sends it automatically on every request
-- **Transactional Outbox** — person creation and its Kafka event are written in one DB transaction; a background scheduler publishes reliably (at-least-once delivery)
-- **Circuit Breaker** — DatabaseServer wraps calls to AuthService in a Resilience4j breaker; auth failures degrade gracefully instead of cascading
-- **Service healthchecks** — Docker Compose waits for `/actuator/health` to return `UP` on each service before starting dependents
-- **Distributed tracing** — every request carries a `traceId` and `spanId` across all services; traces are visible at http://localhost:9411
+- **Keycloak IAM** — centralized identity management with OAuth2/OIDC. Login is handled by Keycloak's themed login page, not custom forms
+- **JWT via Bearer token** — RS256 signed tokens validated against Keycloak's JWKS public keys. No shared secrets between services
+- **Role-Based Access Control (RBAC)** — `@PreAuthorize` annotations enforce: ADMIN=full, USER=read+write, GUEST=read-only
+- **Offline token validation** — if Keycloak goes down, existing tokens still work (public keys are cached)
+- **Transactional Outbox** — person creation and its Kafka event are written in one DB transaction
+- **Circuit Breaker** — DatabaseServer wraps calls to AuthService in a Resilience4j breaker
+- **Distributed tracing** — every request carries a `traceId` and `spanId` across all services
 
 ---
 
-## Roles
+## Roles & Access Control
 
-Three roles are defined (`ADMIN`, `USER`, `GUEST`) and stored per account. Currently the default `admin` user is seeded on startup. Role-based access control (e.g. read-only for USER) is a planned next step.
+| Role | GET /persons | POST /persons | DELETE /persons/{id} |
+|---|---|---|---|
+| ADMIN | ✅ | ✅ | ✅ |
+| USER | ✅ | ✅ | ❌ |
+| GUEST | ✅ | ❌ | ❌ |
+
+Pre-seeded users: `admin` (ADMIN), `user1` (USER), `guest` (GUEST) — all with password `password`
+
+---
+
+## Keycloak Configuration
+
+The realm is auto-imported from `keycloak/realm-export.json` on first startup:
+
+- **Realm:** `webserver-realm`
+- **Clients:**
+  - `react-app` — public client for the React SPA (uses PKCE)
+  - `gateway-client` — confidential client for backend services
+- **Access token lifespan:** 5 minutes
+- **JWKS endpoint:** `http://localhost:8180/realms/webserver-realm/protocol/openid-connect/certs`
 
 ---
 
 ## What's next / learning roadmap
 
-- [ ] Role-based authorization (ADMIN vs USER permissions)
+- [x] Role-based authorization (ADMIN vs USER permissions)
+- [x] Keycloak IAM integration
 - [ ] Kubernetes deployment (Minikube config already started)
 - [ ] Prometheus + Grafana metrics
 - [ ] CI/CD with GitHub Actions
@@ -137,6 +177,7 @@ npx playwright install chromium
 | Service | URL |
 |---|---|
 | App | http://localhost:9080 |
+| Keycloak Admin | http://localhost:8180/admin |
 | Zipkin traces | http://localhost:9411 |
 | Auth actuator | http://localhost:9083/actuator/health |
 | DB actuator | http://localhost:9081/actuator/health |

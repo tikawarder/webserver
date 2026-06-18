@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import keycloak from '../keycloak';
 import './css/inputForm.css';
 
 function InputForm({ onSubmissionSuccess }) {
@@ -18,12 +19,15 @@ function InputForm({ onSubmissionSuccess }) {
     const data = Object.fromEntries(formData.entries());
 
     try {
+      await keycloak.updateToken(30);
+
       const response = await fetch('/api/persons', {
         method: 'POST',
         headers: {
-         'Content-Type': 'application/json'},
+         'Content-Type': 'application/json',
+         'Authorization': 'Bearer ' + keycloak.token,
+        },
         body: JSON.stringify(data),
-        credentials: 'include'
       });
 
       if (response.status === 401 || response.status === 403) {
