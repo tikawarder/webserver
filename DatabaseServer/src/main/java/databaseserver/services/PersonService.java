@@ -40,7 +40,14 @@ public class PersonService {
     @Transactional
     public PersonDto createPerson(PersonDto personDto) {
         // Lekérjük a Spring Security-ból a bejelentkezett felhasználót
-        String currentUsername = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUsername = null;
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth instanceof org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken jwtAuth) {
+            currentUsername = jwtAuth.getToken().getClaimAsString("preferred_username");
+        }
+        if (currentUsername == null && auth != null) {
+            currentUsername = auth.getName();
+        }
         
         // Ellenőrizzük az AuthServiceClient segítségével (Circuit Breaker-rel védett szinkron hívás!)
         boolean isUserActive = authServiceClient.validateUser(currentUsername);
