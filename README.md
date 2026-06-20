@@ -67,6 +67,7 @@ The gateway and frontend wait for the backend services to become healthy before 
 | Messaging | Apache Kafka, Transactional Outbox Pattern |
 | Resilience | Resilience4j Circuit Breaker |
 | Tracing | Zipkin (distributed trace IDs across all services) |
+| Metrics | Micrometer + Prometheus + Grafana (JVM dashboard) |
 | Testing | Spring Cloud Contract, Playwright E2E |
 | Infra | Docker Compose with healthchecks |
 
@@ -92,7 +93,6 @@ Three roles are defined (`ADMIN`, `USER`, `GUEST`) and stored per account. Curre
 
 - [ ] Role-based authorization (ADMIN vs USER permissions)
 - [ ] Kubernetes deployment (Minikube config already started)
-- [ ] Prometheus + Grafana metrics
 - [ ] CI/CD with GitHub Actions
 - [ ] Secret management (Vault or GCP Secret Manager)
 
@@ -138,5 +138,7 @@ npx playwright install chromium
 |---|---|
 | App | http://localhost:9080 |
 | Zipkin traces | http://localhost:9411 |
+| Prometheus | http://localhost:9091 |
+| Grafana | http://localhost:3000 (admin / admin) |
 | Auth actuator | http://localhost:9083/actuator/health |
 | DB actuator | http://localhost:9081/actuator/health |
