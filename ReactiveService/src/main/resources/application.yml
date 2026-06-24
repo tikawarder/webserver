@@ -5,6 +5,17 @@ spring:
   application:
     name: reactive-service
 
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/reactivedb
+    username: user
+    password: password
+
+  # schema.sql is only applied for embedded DBs by default.
+  # "always" forces it to run on every startup — safe because the SQL uses IF NOT EXISTS.
+  sql:
+    init:
+      mode: always
+
 management:
   endpoints:
     web:

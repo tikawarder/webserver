@@ -1,50 +1,54 @@
 package reactiveservice.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactiveservice.model.Person;
 import reactiveservice.model.PersonDto;
+import reactiveservice.repository.PersonRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-
-// In-memory store — no database yet.
-// The goal here is the reactive API shape, not persistence.
-// R2DBC (reactive database driver) would be the next step in a real project.
+// Previously used an in-memory ArrayList — this version delegates to PostgreSQL via R2DBC.
+// The API shape (Mono/Flux) is unchanged; only the data source changed.
+//
+// Key difference from JPA service:
+//   JPA findById() throws or returns Optional — caller blocks while DB responds.
+//   Here findById() returns Mono<Person> — the DB call is scheduled on an I/O thread;
+//   the event loop thread is free to handle other requests in the meantime.
 @Service
+@RequiredArgsConstructor
 public class PersonService {
 
-    private final List<PersonDto> store = new ArrayList<>(List.of(
-            new PersonDto(1L, "Tamás", LocalDate.of(1990, 5, 12), "Budapest"),
-            new PersonDto(2L, "Anna",  LocalDate.of(1995, 3, 22), "Debrecen"),
-            new PersonDto(3L, "Béla",  LocalDate.of(1988, 11, 7), "Pécs")
-    ));
-
-    private final AtomicLong idSequence = new AtomicLong(4);
+    private final PersonRepository repository;
 
     public Flux<PersonDto> findAll() {
-        return Flux.fromIterable(store);
+        return repository.findAll().map(this::toDto);
     }
 
     public Mono<PersonDto> findById(Long id) {
-        return Flux.fromIterable(store)
-                .filter(p -> p.getId().equals(id))
-                .next()                              // Flux → Mono (first match or empty)
-                .switchIfEmpty(Mono.error(new NoSuchPersonException(id)));
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new NoSuchPersonException(id)))
+                .map(this::toDto);
     }
 
     public Mono<PersonDto> save(PersonDto dto) {
-        dto.setId(idSequence.getAndIncrement());
-        store.add(dto);
-        return Mono.just(dto);
+        return repository.save(toEntity(dto)).map(this::toDto);
     }
 
     public Mono<Void> delete(Long id) {
-        return findById(id)
-                .doOnNext(store::remove)
-                .then();                             // discard the value, return Mono<Void>
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new NoSuchPersonException(id)))
+                // flatMap because repository.delete() returns Mono<Void> — we chain, not transform
+                .flatMap(repository::delete);
+    }
+
+    private PersonDto toDto(Person p) {
+        return new PersonDto(p.getId(), p.getName(), p.getBirthDay(), p.getCity());
+    }
+
+    private Person toEntity(PersonDto dto) {
+        // id=null on new entries — SERIAL in Postgres assigns it; R2DBC reads it back
+        return new Person(dto.getId(), dto.getName(), dto.getBirthDay(), dto.getCity());
     }
 
     public static class NoSuchPersonException extends RuntimeException {
