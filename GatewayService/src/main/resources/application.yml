@@ -28,6 +28,9 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+  health:
+    probes:
+      enabled: true
   tracing:
     sampling:
       probability: 1.0
