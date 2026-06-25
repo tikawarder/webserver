@@ -5,11 +5,13 @@ echo "=== Switching to Minikube Docker ==="
 eval $(minikube docker-env)
 
 echo "=== Building Docker images ==="
-docker build -t auth-service:latest ../AuthService
-docker build -t database-server:latest ../DatabaseServer
-docker build -t notification-service:latest ../NotificationService
-docker build -t gateway-service:latest ../GatewayService
-docker build -t userinput-server:latest ../UserInputServer
+GIT_SHA=$(git -C .. rev-parse --short HEAD)
+docker build --no-cache -t auth-service:$GIT_SHA -t auth-service:latest ../AuthService
+docker build --no-cache -t database-server:$GIT_SHA -t database-server:latest ../DatabaseServer
+docker build --no-cache -t notification-service:$GIT_SHA -t notification-service:latest ../NotificationService
+docker build --no-cache -t gateway-service:$GIT_SHA -t gateway-service:latest ../GatewayService
+docker build --no-cache -t userinput-server:$GIT_SHA -t userinput-server:latest ../UserInputServer
+echo "Built images with tag: $GIT_SHA"
 
 echo "=== Applying Kubernetes manifests ==="
 kubectl apply -f namespace.yaml
