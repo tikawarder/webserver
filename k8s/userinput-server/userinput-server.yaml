@@ -26,10 +26,8 @@ metadata:
   name: userinput-server
   namespace: webserver
 spec:
-  type: NodePort
   selector:
     app: userinput-server
   ports:
     - port: 8080
       targetPort: 8080
-      nodePort: 30080
