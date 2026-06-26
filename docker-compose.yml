@@ -19,6 +19,37 @@ services:
     networks:
       - app-network
 
+  # Keycloak IAM Server – Admin UI at http://localhost:8180/admin (admin/admin)
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: keycloak
+    command: start-dev --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres_db:5432/keycloakdb
+      KC_DB_USERNAME: user
+      KC_DB_PASSWORD: password
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    ports:
+      - "8180:8080"
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /realms/master HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200' || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 15
+      start_period: 60s
+    networks:
+      - app-network
+
   auth-service:
     build:
       context: ./AuthService
@@ -52,6 +83,8 @@ services:
     depends_on:
       postgres_db:
         condition: service_healthy
+      keycloak:
+        condition: service_healthy
       zipkin:
         condition: service_started
     ports:
@@ -64,6 +97,8 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
       - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/webserver-realm/protocol/openid-connect/certs
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/webserver-realm
       - REDIS_HOST=redis
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O- http://localhost:8081/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"]
@@ -94,7 +129,7 @@ services:
       context: ./GatewayService
     container_name: gateway
     depends_on:
-      auth-service:
+      keycloak:
         condition: service_healthy
       database-server:
         condition: service_healthy
@@ -104,6 +139,8 @@ services:
       - "9090:8090"
     environment:
       - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/webserver-realm/protocol/openid-connect/certs
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/webserver-realm
     networks:
       - app-network
 

@@ -13,6 +13,10 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,11 +48,17 @@ public class PersonService {
     @CacheEvict(cacheNames = "persons", allEntries = true)
     @Transactional
     public PersonDto createPerson(PersonDto personDto) {
-        String currentUsername = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
-        boolean isUserActive = authServiceClient.validateUser(currentUsername);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = null;
+        if (auth instanceof JwtAuthenticationToken jwtAuth) {
+            currentUsername = jwtAuth.getToken().getClaimAsString("preferred_username");
+        }
+        if (currentUsername == null && auth != null) {
+            currentUsername = auth.getName();
+        }
 
-        if (!isUserActive) {
-            throw new org.springframework.security.access.AccessDeniedException("Active account verification failed in AuthService!");
+        if (!authServiceClient.validateUser(currentUsername)) {
+            throw new AccessDeniedException("Active account verification failed in AuthService!");
         }
 
         Person entity = personMapper.toEntity(personDto);

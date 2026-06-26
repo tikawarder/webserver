@@ -1,21 +1,18 @@
 const { test, expect, request } = require('@playwright/test');
-const { getCookieHeader } = require('./helpers');
+const { loginWithKeycloak, getAccessToken } = require('./helpers');
 
 let createdPersonId = null;
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
-  await page.getByTestId('username-input').fill('admin');
-  await page.getByTestId('password-input').fill('password');
-  await page.getByTestId('login-button').click();
-  await expect(page.getByTestId('welcome-message')).toBeVisible();
+  await loginWithKeycloak(page);
 });
 
 test.afterEach(async ({ page }) => {
   if (createdPersonId) {
+    const token = await getAccessToken(page);
     const apiContext = await request.newContext({ baseURL: 'http://localhost:9081' });
     await apiContext.delete(`/api/persons/${createdPersonId}`, {
-      headers: { Cookie: await getCookieHeader(page) }
+      headers: { Authorization: 'Bearer ' + token }
     });
     createdPersonId = null;
   }
@@ -36,10 +33,10 @@ test('valid person data is accepted and form resets on success', async ({ page }
   await expect(page.getByTestId('name-input')).toHaveValue('', { timeout: 10000 });
   await expect(page.getByTestId('form-error')).not.toBeVisible();
 
-  // Save ID for cleanup in afterEach
+  const token = await getAccessToken(page);
   const apiContext = await request.newContext({ baseURL: 'http://localhost:9081' });
   const listResponse = await apiContext.get('/api/persons?size=100&sort=name,asc', {
-    headers: { Cookie: await getCookieHeader(page) }
+    headers: { Authorization: 'Bearer ' + token }
   });
   const data = await listResponse.json();
   const created = data.content.find(p => p.name === name);
@@ -47,23 +44,26 @@ test('valid person data is accepted and form resets on success', async ({ page }
 });
 
 test('DELETE removes the person from the database', async ({ page }) => {
+  const token = await getAccessToken(page);
   const apiContext = await request.newContext({ baseURL: 'http://localhost:9081' });
-  const cookieHeader = await getCookieHeader(page);
 
   const createResponse = await apiContext.post('/api/persons', {
     data: { name: `Delete Test ${Date.now()}`, birthDay: '1990-01-01', city: 'Pécs' },
-    headers: { Cookie: cookieHeader }
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    }
   });
   expect(createResponse.status()).toBe(200);
   const created = await createResponse.json();
 
   const deleteResponse = await apiContext.delete(`/api/persons/${created.id}`, {
-    headers: { Cookie: cookieHeader }
+    headers: { Authorization: 'Bearer ' + token }
   });
   expect(deleteResponse.status()).toBe(204);
 
   const listResponse = await apiContext.get('/api/persons?size=100', {
-    headers: { Cookie: cookieHeader }
+    headers: { Authorization: 'Bearer ' + token }
   });
   const data = await listResponse.json();
   const found = data.content.find(p => p.id === created.id);

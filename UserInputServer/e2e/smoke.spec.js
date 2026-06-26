@@ -1,27 +1,19 @@
 const { test, expect } = require('@playwright/test');
+const { loginWithKeycloak } = require('./helpers');
 
-test('app loads and login form is visible', async ({ page }) => {
+test('app loads and sign-in button is visible', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByTestId('username-input')).toBeVisible();
-  await expect(page.getByTestId('password-input')).toBeVisible();
   await expect(page.getByTestId('login-button')).toBeVisible();
 });
 
-test('login succeeds and welcome message is shown', async ({ page }) => {
+test('clicking sign-in redirects to Keycloak login page', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('username-input').fill('admin');
-  await page.getByTestId('password-input').fill('password');
   await page.getByTestId('login-button').click();
+  await page.waitForURL(/.*:8180.*/);
+  await expect(page.locator('#username')).toBeVisible();
+});
+
+test('successful login shows welcome message', async ({ page }) => {
+  await loginWithKeycloak(page);
   await expect(page.getByTestId('welcome-message')).toContainText('Welcome back, admin');
-});
-
-test('logout returns to login form', async ({ page }) => {
-  await page.goto('/');
-  await page.getByTestId('username-input').fill('admin');
-  await page.getByTestId('password-input').fill('password');
-  await page.getByTestId('login-button').click();
-  await expect(page.getByTestId('welcome-message')).toBeVisible();
-
-  await page.getByTestId('logout-button').click();
-  await expect(page.getByTestId('login-button')).toBeVisible();
 });

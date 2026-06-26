@@ -22,7 +22,7 @@ module.exports = defineConfig({
     },
     {
       name: 'full',
-      testMatch: ['e2e/auth.spec.js', 'e2e/person-flow.spec.js', 'e2e/validation.spec.js'],
+      testMatch: ['e2e/auth.spec.js', 'e2e/person-flow.spec.js', 'e2e/validation.spec.js', 'e2e/keycloak.spec.js'],
       use: { browserName: 'chromium' },
       dependencies: ['smoke'],
     },
