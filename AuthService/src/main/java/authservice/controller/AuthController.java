@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Authentication", description = "Login, logout and JWT validation")
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = {"http://localhost:9080", "http://localhost:3000", "http://localhost:8080", "https://frontend-react-801953368913.us-east1.run.app", "https://dev.birotamas.hu"}, allowCredentials = "true")
 public class AuthController {
 
     @Autowired

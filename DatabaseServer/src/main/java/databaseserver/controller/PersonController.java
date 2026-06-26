@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Persons", description = "CRUD operations for person records")
 @RestController
 @RequestMapping("/api/persons")
-@CrossOrigin(origins = {"http://localhost:9080", "http://localhost:3000", "http://localhost:8080", "https://frontend-react-801953368913.us-east1.run.app", "https://dev.birotamas.hu"}, allowCredentials = "true")
 @RequiredArgsConstructor
 public class PersonController {
 
