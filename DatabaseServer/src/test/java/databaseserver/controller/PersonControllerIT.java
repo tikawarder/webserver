@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @Transactional
 @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
 class PersonControllerIT {
@@ -33,11 +33,11 @@ class PersonControllerIT {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @MockBean
     private KafkaProducerService kafkaProducerService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     @DisplayName("Smoke test: If the whole connection is ready, we should receive empty list from the database.")
@@ -51,6 +51,7 @@ class PersonControllerIT {
     @Test
     @DisplayName("Save new person and check if same arrives.")
     void createAndListPerson_shouldWork() throws Exception {
+        org.mockito.Mockito.doNothing().when(kafkaProducerService).sendUserCreatedEvent(org.mockito.ArgumentMatchers.any());
         PersonDto newPerson = new PersonDto();
         newPerson.setName("John Doe");
         newPerson.setBirthDay(LocalDate.of(1990, 5, 20));

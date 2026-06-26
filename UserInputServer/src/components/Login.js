@@ -32,19 +32,19 @@ function Login({ onLoginSuccess }) {
       <form onSubmit={handleSubmit}>
         <div>
           <label>Username:</label>
-          <input 
-            type="text" 
-            value={username} 
-            onChange={(e) => setUsername(e.target.value)} 
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             style={{ width: '100%', marginBottom: '10px' }}
           />
         </div>
         <div>
           <label>Password:</label>
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             style={{ width: '100%', marginBottom: '10px' }}
           />
         </div>

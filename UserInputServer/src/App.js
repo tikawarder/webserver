@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import MainLayout from './components/MainLayout';
 import WelcomePanel from './components/WelcomePanel';
 import InputForm from './components/InputForm';
+import AboutPanel from './components/AboutPanel';
 import UserList from './components/UserList/UserList';
 import PageCounter from './components/PageCounter';
 import Login from './components/Login';
@@ -13,7 +14,7 @@ function App() {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   const fetchUsers = (pageNumber = 0) => {
     setLoading(true);
@@ -39,7 +40,7 @@ function App() {
         setTotalPages(data.totalPages);
         setPage(data.number);
         setLoading(false);
-        setIsAuthenticated(true);
+        setIsAuthenticated(prev => prev === null ? true : prev);
       })
       .catch(err => {
         setError(err.message);
@@ -60,15 +61,19 @@ function App() {
     fetchUsers(0);
   };
 
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+  };
+
   return (
     <MainLayout
-        welcomePanel={<WelcomePanel/>}
+        welcomePanel={<WelcomePanel onLoginSuccess={handleLoginSuccess} onLogout={handleLogout} />}
         formPanel={
-          isAuthenticated ? (
-            <InputForm onSubmissionSuccess={handleSuccessSubmit} />
-          ) : (
-            <Login onLoginSuccess={handleLoginSuccess} />
-          )
+          isAuthenticated === true
+            ? <InputForm onSubmissionSuccess={handleSuccessSubmit} />
+            : isAuthenticated === false
+              ? <AboutPanel />
+              : null
         }
         listPanel={
           <UserList

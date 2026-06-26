@@ -1,97 +1,135 @@
-# Java Learning Portfolio
+# Microservices Demo App
 
-A self-built web application documenting a full Java backend learning journey — from Servlets to Microservices.
-Each branch represents a completed learning milestone, all merged into `master` as a chronological history.
-
----
-
-## Learning path (merged to master)
-
-| Branch | What was learned |
-|---|---|
-| `master` | Base — full learning history in chronological order |
-| `5.SpringBoot` | Spring MVC, JPA, Validation, DTOs, Pagination, Unit & Integration testing, `@Async` + `CompletableFuture` |
-| `LearnVulnerabilities` | OWASP Top 10 in practice: XSS, CSRF, IDOR, SQL injection, SSRF — with fixes |
-| `React` | React basics, components, fetch API, webpack, npm |
-| `6.Cloud` | GCP deployment, Docker on Cloud Run, Terraform |
-| `sql` | JPA/SQL deep dive: N+1, ACID, JOINs, all 4 relationship types, LAZY/EAGER, Flyway migrations, Optimistic Locking |
+A hands-on learning project that grew from a simple servlet into a full microservices architecture.
+It demonstrates how independent Spring Boot services communicate, stay resilient, and handle events asynchronously — all running locally with Docker Compose.
 
 ---
 
-## Current development
+## What it does
 
-**Branch:** `microservices`
-
-Full microservices stack:
-- Spring Cloud Gateway
-- AuthService (JWT)
-- DatabaseServer
-- NotificationService
-- Kafka (Transactional Outbox Pattern)
-- Resilience4j circuit breaker
-- Zipkin distributed tracing
-- Docker Compose with healthchecks
+Users can log in, add people to a database, and browse the list with pagination.
+Behind the scenes, every new person triggers a Kafka event that a separate notification service picks up — no direct coupling between services.
 
 ---
 
-## How to run (sql branch — SQL/JPA demo)
+## Architecture
 
-**Prerequisites:** Docker
+```
+Browser
+  └── localhost:9080
+        └── Nginx (UserInputServer / React)
+              └── /api/** → Spring Cloud Gateway :8090
+                    ├── /api/auth/** → AuthService :8083  (JWT login/logout)
+                    └── /api/**      → DatabaseServer :8080 (person CRUD)
+                                            └── Kafka → NotificationService :8082
+                                            └── Zipkin (distributed tracing)
+PostgreSQL
+  ├── authdb   (accounts, roles)
+  └── usersdb  (persons, outbox_messages)
+```
+
+---
+
+## Quick start
+
+**Requirements:** Docker and Docker Compose
 
 ```bash
-git checkout sql
-cd /path/to/webserver
+git clone <repo>
+cd webserver
 docker compose up --build
 ```
 
-App starts at `http://localhost:8081`
+Open **http://localhost:9080**
 
-### Demo endpoints
+Login credentials: `admin` / `password`
 
-```bash
-# N+1 problem — watch the logs for multiple vs single SQL
-GET  /api/demo/n1/broken
-GET  /api/demo/n1/fixed
-
-# ACID + @Transactional rollback
-POST /api/demo/acid/transfer?fromId=1&toId=2&amount=100
-POST /api/demo/acid/transfer-fail?fromId=1&toId=2&amount=10
-
-# JOIN types
-GET  /api/demo/join/inner
-GET  /api/demo/join/left
-
-# Aggregates (GROUP BY, SUM, COUNT)
-GET  /api/demo/aggregates/revenue-per-city
-GET  /api/demo/aggregates/order-count
-
-# Optimistic Locking (@Version) conflict demo
-POST /api/demo/optimistic-lock/demo?orderId=1
-
-# JPA relationships (OneToOne, OneToMany, ManyToMany, FetchType)
-GET  /api/relations/one-to-one/lazy/1
-GET  /api/relations/one-to-one/join-fetch
-GET  /api/relations/many-to-many/orders-with-tags
-GET  /api/relations/full-customer/1
-```
-
-### What Flyway does on first start
-
-```
-Migrating schema `usersdb` to version "1 - create core tables"
-Migrating schema `usersdb` to version "2 - create demo tables"
-Migrating schema `usersdb` to version "3 - add optimistic locking"
-Successfully applied 3 migrations
-```
-
-On subsequent starts: `Schema is up to date. No migration necessary.`
+The gateway and frontend wait for the backend services to become healthy before starting — no manual ordering needed.
 
 ---
 
-## Next learning phases
+## Tech stack
 
-| Branch | Builds on | Topic |
+| Layer | Technology |
+|---|---|
+| Frontend | React, Nginx |
+| Gateway | Spring Cloud Gateway |
+| Auth | Spring Security, JWT (HttpOnly cookie) |
+| Backend | Spring Boot 3.4.1, Spring Data JPA |
+| Database | PostgreSQL 15 |
+| Messaging | Apache Kafka, Transactional Outbox Pattern |
+| Resilience | Resilience4j Circuit Breaker |
+| Tracing | Zipkin (distributed trace IDs across all services) |
+| Testing | Spring Cloud Contract, Playwright E2E |
+| Infra | Docker Compose with healthchecks |
+
+---
+
+## Key implementation highlights
+
+- **JWT via HttpOnly cookie** — the token never touches JavaScript; the browser sends it automatically on every request
+- **Transactional Outbox** — person creation and its Kafka event are written in one DB transaction; a background scheduler publishes reliably (at-least-once delivery)
+- **Circuit Breaker** — DatabaseServer wraps calls to AuthService in a Resilience4j breaker; auth failures degrade gracefully instead of cascading
+- **Service healthchecks** — Docker Compose waits for `/actuator/health` to return `UP` on each service before starting dependents
+- **Distributed tracing** — every request carries a `traceId` and `spanId` across all services; traces are visible at http://localhost:9411
+
+---
+
+## Roles
+
+Three roles are defined (`ADMIN`, `USER`, `GUEST`) and stored per account. Currently the default `admin` user is seeded on startup. Role-based access control (e.g. read-only for USER) is a planned next step.
+
+---
+
+## What's next / learning roadmap
+
+- [ ] Role-based authorization (ADMIN vs USER permissions)
+- [ ] Kubernetes deployment (Minikube config already started)
+- [ ] Prometheus + Grafana metrics
+- [ ] CI/CD with GitHub Actions
+- [ ] Secret management (Vault or GCP Secret Manager)
+
+---
+
+## E2E Testing
+
+End-to-end tests are written with [Playwright](https://playwright.dev/).
+The app must be running (`docker compose up`) before executing the tests.
+
+```bash
+cd UserInputServer
+npm install
+npx playwright install chromium
+```
+
+| Command | Mode |
+|---|---|
+| `npm run e2e` | Headed, sequential, slowMo=500ms — watch it run |
+| `npm run e2e:fast` | Headless, 4 parallel workers — ~6s, use after merges |
+| `npx playwright test --ui` | Interactive UI — pick tests, inspect steps, replay |
+
+### What is covered
+
+| File | Tests | What it checks |
 |---|---|---|
-| `PlaywrightE2E` | `microservices` | End-to-end tests |
-| `kubernetes` | `microservices` | K8s deployment (Minikube) |
-| `ci-cd` | `kubernetes` | GitHub Actions pipeline |
+| `smoke.spec.js` | 3 | App loads, login succeeds, logout works |
+| `auth.spec.js` | 2 | Form hidden before login, wrong password shows error |
+| `person-flow.spec.js` | 1 | Full flow: login → create person → cleanup |
+| `validation.spec.js` | 3 | Empty form errors, valid save resets form, DELETE endpoint |
+
+### Implementation notes
+
+- All interactive elements have `data-testid` attributes — selectors are stable across UI text changes
+- Each test cleans up after itself via `DELETE /api/persons/{id}` — no data accumulates between runs
+- `CI=true` switches to headless + parallel mode; GitHub Actions sets this automatically
+
+---
+
+## Observability
+
+| Service | URL |
+|---|---|
+| App | http://localhost:9080 |
+| Zipkin traces | http://localhost:9411 |
+| Auth actuator | http://localhost:9083/actuator/health |
+| DB actuator | http://localhost:9081/actuator/health |

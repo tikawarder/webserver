@@ -36,3 +36,17 @@ Monolit_Microservice_Migracio.md
 
 ### Test results ###
 UserInputServer/test-results/
+
+# Tools and binaries
+.metals/
+.vscode/
+minikube-linux-amd64
+
+# Test artifacts
+UserInputServer/test-results/
+
+# AI-generated scratch files
+AI/
+
+# Local documentation
+docs/

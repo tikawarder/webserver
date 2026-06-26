@@ -1,8 +1,10 @@
 package databaseserver.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import databaseserver.model.dto.PersonDto;
 import databaseserver.model.entity.Person;
 import databaseserver.repository.PersonRepository;
+import databaseserver.repository.OutboxMessageRepository;
 import databaseserver.services.mapper.PersonMapper;
 import databaseserver.services.kafka.KafkaProducerService;
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -30,10 +33,13 @@ class PersonServiceTest {
     private PersonRepository personRepository;
 
     @Mock
-    private PersonMapper personMapper;
+    private OutboxMessageRepository outboxMessageRepository;
 
     @Mock
-    private KafkaProducerService kafkaProducerService;
+    private PersonMapper personMapper;
+
+    @Spy
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @InjectMocks
     private PersonService personService;

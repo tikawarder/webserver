@@ -10,11 +10,38 @@ services:
       POSTGRES_DB: usersdb
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d usersdb"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
+
+  auth-service:
+    build:
+      context: ./AuthService
+    container_name: auth_service
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+      zipkin:
+        condition: service_started
+    ports:
+      - "9083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db:5432/authdb
+      - SPRING_DATASOURCE_USERNAME=user
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8083/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - app-network
 
@@ -25,14 +52,57 @@ services:
     depends_on:
       postgres_db:
         condition: service_healthy
+      zipkin:
+        condition: service_started
     ports:
       - "9081:8081"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db:5432/usersdb
       - SPRING_DATASOURCE_USERNAME=user
       - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_PROFILES_ACTIVE=dev
       - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8081/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - app-network
+
+  notification-service:
+    build:
+      context: ./NotificationService
+    container_name: notification_service
+    depends_on:
+      - kafka
+      - zipkin
+    ports:
+      - "9082:8082"
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
+    networks:
+      - app-network
+
+  gateway:
+    build:
+      context: ./GatewayService
+    container_name: gateway
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      database-server:
+        condition: service_healthy
+      zipkin:
+        condition: service_started
+    ports:
+      - "9090:8090"
+    environment:
+      - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
     networks:
       - app-network
 
@@ -41,6 +111,7 @@ services:
       context: ./UserInputServer
     container_name: userinput_server
     depends_on:
+      - gateway
       - database-server
     ports:
       - "9080:8080"
@@ -72,6 +143,14 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - app-network
+
+  zipkin:
+    image: openzipkin/zipkin:3
+    container_name: zipkin
+    ports:
+      - "9411:9411"
     networks:
       - app-network
 

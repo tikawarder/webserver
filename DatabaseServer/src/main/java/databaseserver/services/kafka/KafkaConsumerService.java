@@ -11,7 +11,7 @@ public class KafkaConsumerService {
 
     @KafkaListener(topics = "user-created", groupId = "user-service-group")
     public void listen(UserCreatedEvent event) {
-        log.info("Received event from Kafka! New user registered: {} from {}", 
+        log.info("Received event from Kafka! New user registered: {} from {}",
             event.getName(), event.getCity());
         log.info("Full event details: {}", event);
     }

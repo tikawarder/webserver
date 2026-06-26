@@ -16,7 +16,7 @@ CREATE TABLE demo_orders (
     product     VARCHAR(255)   NOT NULL,
     amount      DECIMAL(38, 2) NOT NULL,
     status      VARCHAR(50)    NOT NULL,
-    createdat   TIMESTAMP      NOT NULL,
+    created_at  TIMESTAMP      NOT NULL,
     customer_id BIGINT         NOT NULL REFERENCES demo_customers (id)
 );
 
@@ -27,7 +27,7 @@ CREATE TABLE demo_profiles (
     id          BIGSERIAL    PRIMARY KEY,
     phone       VARCHAR(255),
     bio         VARCHAR(255),
-    avatarurl   VARCHAR(255),
+    avatar_url  VARCHAR(255),
     customer_id BIGINT       NOT NULL UNIQUE REFERENCES demo_customers (id)
 );
 

@@ -7,3 +7,5 @@ CREATE TABLE IF NOT EXISTS users (
     birthDay DATE NOT NULL,
     city VARCHAR(100) NOT NULL
 );
+
+CREATE DATABASE authdb;

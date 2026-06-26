@@ -22,7 +22,7 @@ public class Person {
 	@Column(nullable = false)
 	private String name;
 
-	@Column(name = "birthDay", nullable = false)
+	@Column(name = "birthday", nullable = false)
 	private LocalDate birthDay;
 
 	@Column(nullable = false)
