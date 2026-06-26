@@ -7,7 +7,7 @@ module.exports = defineConfig({
   workers: isCI ? 4 : 1,
   retries: isCI ? 2 : 1,
   use: {
-    baseURL: 'http://localhost:9080',
+    baseURL: process.env.BASE_URL || 'http://localhost:9080',
     headless: isCI ? true : false,
     launchOptions: {
       slowMo: isCI ? 0 : 500,
