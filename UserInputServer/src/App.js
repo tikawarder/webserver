@@ -6,7 +6,6 @@ import InputForm from './components/InputForm';
 import AboutPanel from './components/AboutPanel';
 import UserList from './components/UserList/UserList';
 import PageCounter from './components/PageCounter';
-import Login from './components/Login';
 
 function App() {
   const [users, setUsers] = useState([]);

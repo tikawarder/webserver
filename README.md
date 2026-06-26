@@ -46,6 +46,13 @@ Login credentials: `admin` / `password`
 
 The gateway and frontend wait for the backend services to become healthy before starting — no manual ordering needed.
 
+> **Fresh install note:** PostgreSQL init scripts (`db/`) only run on an empty data volume.
+> If you previously ran another branch and the volume already exists, run:
+> ```bash
+> docker compose down -v && docker compose up --build
+> ```
+> The `-v` flag removes the volume so both `usersdb` and `authdb` are created from scratch.
+
 ---
 
 ## Tech stack
@@ -60,6 +67,7 @@ The gateway and frontend wait for the backend services to become healthy before 
 | Messaging | Apache Kafka, Transactional Outbox Pattern |
 | Resilience | Resilience4j Circuit Breaker |
 | Tracing | Zipkin (distributed trace IDs across all services) |
+| Metrics | Micrometer + Prometheus + Grafana (JVM dashboard) |
 | Testing | Spring Cloud Contract, Playwright E2E |
 | Infra | Docker Compose with healthchecks |
 
@@ -81,11 +89,29 @@ Three roles are defined (`ADMIN`, `USER`, `GUEST`) and stored per account. Curre
 
 ---
 
+## ReactiveService — Spring WebFlux + R2DBC
+
+A learning chapter on the `reactive` branch: the same Person CRUD as `DatabaseServer`, rebuilt
+fully non-blocking. Instead of one thread per request (MVC + JDBC), an event loop handles
+thousands of in-flight requests with a handful of I/O threads — no thread blocks while waiting
+for PostgreSQL to respond.
+
+**Port:** `9084` (Docker) / `8084` (local)
+
+| Layer | Technology |
+|---|---|
+| HTTP | Spring WebFlux — controllers return `Mono<T>` / `Flux<T>` |
+| Service | Reactor operators (`switchIfEmpty`, `flatMap`, `map`) |
+| Repository | `ReactiveCrudRepository` — non-blocking `Mono`/`Flux` results |
+| DB driver | R2DBC — non-blocking wire protocol, not JDBC |
+| Streaming | Server-Sent Events on `/stream` — elements pushed over time |
+
+---
+
 ## What's next / learning roadmap
 
 - [ ] Role-based authorization (ADMIN vs USER permissions)
 - [ ] Kubernetes deployment (Minikube config already started)
-- [ ] Prometheus + Grafana metrics
 - [ ] CI/CD with GitHub Actions
 - [ ] Secret management (Vault or GCP Secret Manager)
 
@@ -131,5 +157,7 @@ npx playwright install chromium
 |---|---|
 | App | http://localhost:9080 |
 | Zipkin traces | http://localhost:9411 |
+| Prometheus | http://localhost:9091 |
+| Grafana | http://localhost:3000 (admin / admin) |
 | Auth actuator | http://localhost:9083/actuator/health |
 | DB actuator | http://localhost:9081/actuator/health |

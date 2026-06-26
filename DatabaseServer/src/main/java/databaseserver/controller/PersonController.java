@@ -11,25 +11,30 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.http.HttpStatus;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+@Tag(name = "Persons", description = "CRUD operations for person records")
 @RestController
 @RequestMapping("/api/persons")
-@CrossOrigin(origins = {"http://localhost:9080", "http://localhost:3000", "http://localhost:8080", "https://frontend-react-801953368913.us-east1.run.app", "https://dev.birotamas.hu"}, allowCredentials = "true")
 @RequiredArgsConstructor
 public class PersonController {
 
     private final PersonService personService;
 
+    @Operation(summary = "List all persons (paginated)")
     @GetMapping
     public Page<PersonDto> getAllPersons(@PageableDefault(page = 0, size = 5, sort = "name") Pageable pageable) {
         return personService.getAllPersons(pageable);
     }
 
+    @Operation(summary = "Create a new person")
     @PostMapping
     public ResponseEntity<PersonDto> createPerson(@Valid @RequestBody PersonDto personDto) {
         return ResponseEntity.ok(personService.createPerson(personDto));
     }
 
+    @Operation(summary = "Delete a person by ID")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePerson(@PathVariable Long id) {
         personService.deletePerson(id);

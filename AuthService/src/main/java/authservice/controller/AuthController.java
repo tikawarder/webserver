@@ -12,10 +12,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+@Tag(name = "Authentication", description = "Login, logout and JWT validation")
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = {"http://localhost:9080", "http://localhost:3000", "http://localhost:8080", "https://frontend-react-801953368913.us-east1.run.app", "https://dev.birotamas.hu"}, allowCredentials = "true")
 public class AuthController {
 
     @Autowired
@@ -27,12 +29,14 @@ public class AuthController {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Operation(summary = "Validate JWT and return whether username exists (internal use)")
     @GetMapping("/validate/{username}")
     public ResponseEntity<Boolean> validateUser(@PathVariable String username) {
         boolean exists = accountRepository.findByUsername(username).isPresent();
         return ResponseEntity.ok(exists);
     }
 
+    @Operation(summary = "Logout — clears JWT cookie")
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
         ResponseCookie clearCookie = ResponseCookie.from("jwt-token", "")
@@ -47,6 +51,7 @@ public class AuthController {
                 .body("Logged out.");
     }
 
+    @Operation(summary = "Login — authenticates user and returns JWT in HttpOnly cookie")
     @PostMapping
     public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody LoginRequest request) {
             Authentication authentication = authenticationManager.authenticate(

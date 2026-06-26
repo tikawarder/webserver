@@ -9,6 +9,8 @@ import databaseserver.repository.PersonRepository;
 import databaseserver.repository.OutboxMessageRepository;
 import databaseserver.services.mapper.PersonMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,24 +28,25 @@ public class PersonService {
     private final ObjectMapper objectMapper;
     private final AuthServiceClient authServiceClient;
 
+    @Cacheable(cacheNames = "persons", key = "#pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
     @Transactional(readOnly = true)
     public Page<PersonDto> getAllPersons(Pageable pageable) {
         Page<Person> personsPage = personRepository.findAll(pageable);
         return personsPage.map(personMapper::toDto);
     }
 
+    @CacheEvict(cacheNames = "persons", allEntries = true)
     @Transactional
     public void deletePerson(Long id) {
         personRepository.deleteById(id);
     }
 
+    @CacheEvict(cacheNames = "persons", allEntries = true)
     @Transactional
     public PersonDto createPerson(PersonDto personDto) {
-        // Lekérjük a Spring Security-ból a bejelentkezett felhasználót
         String currentUsername = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
-
-        // Ellenőrizzük az AuthServiceClient segítségével (Circuit Breaker-rel védett szinkron hívás!)
         boolean isUserActive = authServiceClient.validateUser(currentUsername);
+
         if (!isUserActive) {
             throw new org.springframework.security.access.AccessDeniedException("Active account verification failed in AuthService!");
         }

@@ -7,6 +7,8 @@ import databaseserver.repository.PersonRepository;
 import databaseserver.repository.OutboxMessageRepository;
 import databaseserver.services.AuthServiceClient;
 import databaseserver.services.mapper.PersonMapper;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import databaseserver.services.kafka.KafkaProducerService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,7 +57,7 @@ class PersonServiceTest {
 
     @BeforeEach
     void setUpSecurityContext() {
-        var auth = new UsernamePasswordAuthenticationToken("admin", "password", List.of());
+        var auth = new UsernamePasswordAuthenticationToken("admin", null, List.of());
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
@@ -108,7 +110,7 @@ class PersonServiceTest {
         outputDto.setId(123L);
         outputDto.setName("New Person");
 
-        when(authServiceClient.validateUser(anyString())).thenReturn(true);
+        when(authServiceClient.validateUser("admin")).thenReturn(true);
         when(personMapper.toEntity(inputDto)).thenReturn(personEntity);
         when(personRepository.save(personEntity)).thenReturn(savedEntity);
         when(personMapper.toDto(savedEntity)).thenReturn(outputDto);
@@ -122,5 +124,12 @@ class PersonServiceTest {
         assertEquals("New Person", result.getName());
 
         verify(personRepository, times(1)).save(personEntity);
+    }
+
+    @Test
+    @DisplayName("Delete a person by id — repository deleteById is called once")
+    void deletePerson_shouldCallDeleteById() {
+        personService.deletePerson(42L);
+        verify(personRepository, times(1)).deleteById(42L);
     }
 }

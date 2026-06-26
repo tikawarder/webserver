@@ -6,6 +6,13 @@ spring:
     name: gateway-service
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
       routes:
         - id: auth-service
           uri: "http://auth-service:8083"
@@ -21,7 +28,16 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,info,prometheus,metrics
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  health:
+    probes:
+      enabled: true
   tracing:
     sampling:
       probability: 1.0

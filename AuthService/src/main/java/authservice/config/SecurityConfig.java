@@ -22,14 +22,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.disable())
-                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth", "/api/auth/**").permitAll()
-                        .requestMatchers("/api/ai/**").permitAll()
-                        .requestMatchers("/api/demo/**").permitAll()
-                        .requestMatchers("/api/relations/**").permitAll()
-                        .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/actuator/health/**", "/error").permitAll()
+                        .requestMatchers("/api/auth", "/api/auth/**", "/actuator/health", "/actuator/health/**", "/actuator/prometheus", "/error",
+                                "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);

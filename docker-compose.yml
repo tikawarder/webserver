@@ -64,6 +64,7 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
       - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
+      - REDIS_HOST=redis
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O- http://localhost:8081/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"]
       interval: 10s
@@ -120,6 +121,23 @@ services:
     networks:
       - app-network
 
+  reactive-service:
+    build:
+      context: ./ReactiveService
+    container_name: reactive_service
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    ports:
+      - "9084:8084"
+    environment:
+      - SPRING_R2DBC_URL=r2dbc:postgresql://postgres_db:5432/reactivedb
+      - SPRING_R2DBC_USERNAME=user
+      - SPRING_R2DBC_PASSWORD=password
+      - SPRING_SQL_INIT_MODE=always
+    networks:
+      - app-network
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
     container_name: zookeeper
@@ -151,6 +169,39 @@ services:
     container_name: zipkin
     ports:
       - "9411:9411"
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - app-network
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
     networks:
       - app-network
 
