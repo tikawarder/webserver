@@ -89,6 +89,25 @@ Three roles are defined (`ADMIN`, `USER`, `GUEST`) and stored per account. Curre
 
 ---
 
+## ReactiveService — Spring WebFlux + R2DBC
+
+A learning chapter on the `reactive` branch: the same Person CRUD as `DatabaseServer`, rebuilt
+fully non-blocking. Instead of one thread per request (MVC + JDBC), an event loop handles
+thousands of in-flight requests with a handful of I/O threads — no thread blocks while waiting
+for PostgreSQL to respond.
+
+**Port:** `9084` (Docker) / `8084` (local)
+
+| Layer | Technology |
+|---|---|
+| HTTP | Spring WebFlux — controllers return `Mono<T>` / `Flux<T>` |
+| Service | Reactor operators (`switchIfEmpty`, `flatMap`, `map`) |
+| Repository | `ReactiveCrudRepository` — non-blocking `Mono`/`Flux` results |
+| DB driver | R2DBC — non-blocking wire protocol, not JDBC |
+| Streaming | Server-Sent Events on `/stream` — elements pushed over time |
+
+---
+
 ## What's next / learning roadmap
 
 - [ ] Role-based authorization (ADMIN vs USER permissions)
