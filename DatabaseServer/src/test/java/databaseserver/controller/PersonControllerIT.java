@@ -1,17 +1,12 @@
 package databaseserver.controller;
 
-import databaseserver.model.dto.PersonDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import databaseserver.AbstractIntegrationTest;
+import databaseserver.model.dto.PersonDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import databaseserver.services.kafka.KafkaProducerService;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -24,23 +19,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
+/**
+ * Integration test with real PostgreSQL (via Testcontainers).
+ * Kafka is also real — PersonService saves to the Outbox table,
+ * OutboxPublisher sends the event asynchronously.
+ */
 @Transactional
-@WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
-class PersonControllerIT {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    private KafkaProducerService kafkaProducerService;
+class PersonControllerIT extends AbstractIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("Smoke test: If the whole connection is ready, we should receive empty list from the database.")
+    @DisplayName("Smoke test: real PostgreSQL returns empty list on fresh DB.")
     void getAllPersons_shouldReturnEmptyList_whenNoData() throws Exception {
         mockMvc.perform(get("/api/persons")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -49,20 +40,17 @@ class PersonControllerIT {
     }
 
     @Test
-    @DisplayName("Save new person and check if same arrives.")
+    @DisplayName("Save person to real PostgreSQL and verify it appears in the list.")
     void createAndListPerson_shouldWork() throws Exception {
-        org.mockito.Mockito.doNothing().when(kafkaProducerService).sendUserCreatedEvent(org.mockito.ArgumentMatchers.any());
         PersonDto newPerson = new PersonDto();
         newPerson.setName("John Doe");
         newPerson.setBirthDay(LocalDate.of(1990, 5, 20));
         newPerson.setCity("Debrecen");
 
-        String jsonRequest = objectMapper.writeValueAsString(newPerson);
-
         mockMvc.perform(post("/api/persons")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonRequest))
+                        .content(objectMapper.writeValueAsString(newPerson)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("John Doe")));
 
