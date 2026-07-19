@@ -1,6 +1,8 @@
 package databaseserver.ai;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.googleai.GoogleAiEmbeddingModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +28,23 @@ public class AiConfig {
                 .apiKey(geminiApiKey)
                 .modelName("gemini-2.5-flash")
                 .temperature(0.0)
+                .timeout(Duration.ofSeconds(30))
+                .maxRetries(1)
+                .build();
+    }
+
+    /*
+     * Separate model from chatLanguageModel() — this one only turns text into
+     * a vector (768 floats, truncated from gemini-embedding-001's native 3072
+     * via outputDimensionality), it never generates text.
+     * Used by the RAG ingestion and retrieval steps (see ai/rag package).
+     */
+    @Bean
+    public EmbeddingModel embeddingModel() {
+        return GoogleAiEmbeddingModel.builder()
+                .apiKey(geminiApiKey)
+                .modelName("gemini-embedding-001")
+                .outputDimensionality(768)
                 .timeout(Duration.ofSeconds(30))
                 .maxRetries(1)
                 .build();

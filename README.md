@@ -147,6 +147,18 @@ for PostgreSQL to respond.
 
 ---
 
+## AI Features (Phase 3 — RAG chatbot)
+
+`AI-implementation` branch, part of the 6-phase plan in `AI/AI_Engineer_Interview_Prep.md`. A
+Retrieval-Augmented Generation chatbot answering questions grounded in a source document
+(currently a public Kubernetes overview, adapted from Wikipedia CC BY-SA 4.0 — not personal data).
+
+After the usual **Quick start** above, log in and use the chat panel (bottom-right, where the
+page-refresh counter used to be): click "Re-ingest source document" once, then ask a question.
+Off-topic questions get refused instead of a hallucinated answer.
+
+---
+
 ## What's next / learning roadmap
 
 - [x] Role-based authorization (ADMIN vs USER permissions)
