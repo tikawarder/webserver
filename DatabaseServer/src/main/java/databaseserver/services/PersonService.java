@@ -10,7 +10,6 @@ import databaseserver.repository.OutboxMessageRepository;
 import databaseserver.services.mapper.PersonMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -32,7 +31,8 @@ public class PersonService {
     private final ObjectMapper objectMapper;
     private final AuthServiceClient authServiceClient;
 
-    @Cacheable(cacheNames = "persons", key = "#pageable.pageNumber + '_' + #pageable.pageSize + '_' + #pageable.sort")
+    // Not cached: Page/PageImpl has no default constructor, so Jackson can never
+    // deserialize it back from Redis on a cache hit — every 2nd call would 500.
     @Transactional(readOnly = true)
     public Page<PersonDto> getAllPersons(Pageable pageable) {
         Page<Person> personsPage = personRepository.findAll(pageable);
