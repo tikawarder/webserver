@@ -45,6 +45,12 @@
             <artifactId>langchain4j</artifactId>
             <version>0.36.2</version>
         </dependency>
+        <!-- HTML -> readable text extraction, used by the job-posting fetch tool (ai/agent) -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.18.1</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>

@@ -1,9 +1,12 @@
 package databaseserver.ai;
 
+import databaseserver.ai.agent.AgentTools;
+import databaseserver.ai.agent.JobApplicationAgent;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.googleai.GoogleAiEmbeddingModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
+import dev.langchain4j.service.AiServices;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,6 +50,20 @@ public class AiConfig {
                 .outputDimensionality(768)
                 .timeout(Duration.ofSeconds(30))
                 .maxRetries(1)
+                .build();
+    }
+
+    /*
+     * Declarative agent: AiServices generates a runtime proxy for the
+     * JobApplicationAgent interface, wiring the chat model to the tools in
+     * AgentTools. Calling helpWithApplication() drives a ReAct loop — the model
+     * decides which tool to call, in what order, based on the @Tool descriptions.
+     */
+    @Bean
+    public JobApplicationAgent jobApplicationAgent(ChatLanguageModel chatLanguageModel, AgentTools agentTools) {
+        return AiServices.builder(JobApplicationAgent.class)
+                .chatLanguageModel(chatLanguageModel)
+                .tools(agentTools)
                 .build();
     }
 }
