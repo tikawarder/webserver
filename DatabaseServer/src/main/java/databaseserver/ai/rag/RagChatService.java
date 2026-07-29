@@ -1,5 +1,6 @@
 package databaseserver.ai.rag;
 
+import databaseserver.ai.observability.AiCallLogService;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
@@ -21,11 +22,14 @@ public class RagChatService {
     private final EmbeddingModel embeddingModel;
     private final ChatLanguageModel chatModel;
     private final JdbcTemplate jdbcTemplate;
+    private final AiCallLogService aiCallLogService;
 
-    public RagChatService(EmbeddingModel embeddingModel, ChatLanguageModel chatModel, JdbcTemplate jdbcTemplate) {
+    public RagChatService(EmbeddingModel embeddingModel, ChatLanguageModel chatModel, JdbcTemplate jdbcTemplate,
+                           AiCallLogService aiCallLogService) {
         this.embeddingModel = embeddingModel;
         this.chatModel = chatModel;
         this.jdbcTemplate = jdbcTemplate;
+        this.aiCallLogService = aiCallLogService;
     }
 
     public String answer(String question) {
@@ -44,7 +48,10 @@ public class RagChatService {
 
     // R — Retrieval: embed the question, find the closest stored chunks by cosine distance.
     private List<String> retrieveRelevantChunks(String question) {
-        Embedding questionEmbedding = embeddingModel.embed(question).content();
+        Embedding questionEmbedding = aiCallLogService.recordEmbeddingCall(
+                "/api/ai/rag-chat", "gemini-embedding-001", question,
+                () -> embeddingModel.embed(question).content()
+        );
         return jdbcTemplate.queryForList(
                 "SELECT content FROM rag_chunks ORDER BY embedding <=> ?::vector LIMIT ?",
                 String.class,

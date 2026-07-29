@@ -1,5 +1,6 @@
 package databaseserver.ai.rag;
 
+import databaseserver.ai.observability.AiCallLogService;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import org.springframework.core.io.ClassPathResource;
@@ -18,10 +19,12 @@ public class RagIngestionService {
 
     private final EmbeddingModel embeddingModel;
     private final JdbcTemplate jdbcTemplate;
+    private final AiCallLogService aiCallLogService;
 
-    public RagIngestionService(EmbeddingModel embeddingModel, JdbcTemplate jdbcTemplate) {
+    public RagIngestionService(EmbeddingModel embeddingModel, JdbcTemplate jdbcTemplate, AiCallLogService aiCallLogService) {
         this.embeddingModel = embeddingModel;
         this.jdbcTemplate = jdbcTemplate;
+        this.aiCallLogService = aiCallLogService;
     }
 
     /*
@@ -35,7 +38,10 @@ public class RagIngestionService {
 
         jdbcTemplate.update("DELETE FROM rag_chunks");
         for (String chunk : chunks) {
-            Embedding embedding = embeddingModel.embed(chunk).content();
+            Embedding embedding = aiCallLogService.recordEmbeddingCall(
+                    "/api/ai/rag-chat/ingest", "gemini-embedding-001", chunk,
+                    () -> embeddingModel.embed(chunk).content()
+            );
             jdbcTemplate.update(
                     "INSERT INTO rag_chunks (content, embedding) VALUES (?, ?::vector)",
                     chunk,

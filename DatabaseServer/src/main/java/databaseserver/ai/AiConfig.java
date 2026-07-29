@@ -2,6 +2,7 @@ package databaseserver.ai;
 
 import databaseserver.ai.agent.AgentTools;
 import databaseserver.ai.agent.JobApplicationAgent;
+import databaseserver.ai.observability.AiCallLoggingListener;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.googleai.GoogleAiEmbeddingModel;
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
+import java.util.List;
 
 @Configuration
 public class AiConfig {
@@ -26,13 +28,14 @@ public class AiConfig {
      * swapping to Claude or GPT-4 requires changing only this file.
      */
     @Bean
-    public ChatLanguageModel chatLanguageModel() {
+    public ChatLanguageModel chatLanguageModel(AiCallLoggingListener aiCallLoggingListener) {
         return GoogleAiGeminiChatModel.builder()
                 .apiKey(geminiApiKey)
                 .modelName("gemini-2.5-flash")
                 .temperature(0.0)
                 .timeout(Duration.ofSeconds(30))
                 .maxRetries(1)
+                .listeners(List.of(aiCallLoggingListener))
                 .build();
     }
 
