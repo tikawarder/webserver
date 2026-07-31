@@ -1,0 +1,94 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "description": "Phase 5 AI observability: call volume and latency for every LLM call made via the shared ChatLanguageModel/AiCallLogService (see databaseserver.ai.observability).",
+  "editable": true,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "description": "Rate of LLM calls per second, broken down by endpoint and model. Backed by the ai_calls_total counter incremented in AiCallLogService.record().",
+      "fieldConfig": {
+        "defaults": { "unit": "reqps" },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "expr": "sum by (endpoint, model) (rate(ai_calls_total[1m]))",
+          "legendFormat": "{{endpoint}} ({{model}})",
+          "refId": "A"
+        }
+      ],
+      "title": "AI call volume (calls/sec)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "description": "Average LLM call latency per endpoint/model, computed from the ai_call_duration_seconds Timer recorded around every chatModel.generate()/embed() call.",
+      "fieldConfig": {
+        "defaults": { "unit": "s" },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "expr": "sum by (endpoint, model) (rate(ai_call_duration_seconds_sum[5m])) / sum by (endpoint, model) (rate(ai_call_duration_seconds_count[5m]))",
+          "legendFormat": "{{endpoint}} ({{model}})",
+          "refId": "A"
+        }
+      ],
+      "title": "AI call average latency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "description": "Total LLM calls in the selected time range, per endpoint.",
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 9 },
+      "id": 3,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "Prometheus" },
+          "expr": "sum by (endpoint) (increase(ai_calls_total[$__range]))",
+          "legendFormat": "{{endpoint}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Total AI calls by endpoint (range)",
+      "type": "bargauge"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["ai", "llm", "observability"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "timezone": "browser",
+  "title": "AI Observability",
+  "uid": "ai-observability",
+  "version": 1
+}

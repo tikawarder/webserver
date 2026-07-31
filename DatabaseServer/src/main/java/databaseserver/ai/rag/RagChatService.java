@@ -1,6 +1,7 @@
 package databaseserver.ai.rag;
 
 import databaseserver.ai.observability.AiCallLogService;
+import databaseserver.ai.observability.PromptGuardrail;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
@@ -23,16 +24,19 @@ public class RagChatService {
     private final ChatLanguageModel chatModel;
     private final JdbcTemplate jdbcTemplate;
     private final AiCallLogService aiCallLogService;
+    private final PromptGuardrail promptGuardrail;
 
     public RagChatService(EmbeddingModel embeddingModel, ChatLanguageModel chatModel, JdbcTemplate jdbcTemplate,
-                           AiCallLogService aiCallLogService) {
+                           AiCallLogService aiCallLogService, PromptGuardrail promptGuardrail) {
         this.embeddingModel = embeddingModel;
         this.chatModel = chatModel;
         this.jdbcTemplate = jdbcTemplate;
         this.aiCallLogService = aiCallLogService;
+        this.promptGuardrail = promptGuardrail;
     }
 
     public String answer(String question) {
+        promptGuardrail.assertNoPii(question);
         List<String> relevantChunks = retrieveRelevantChunks(question);
 
         String template = loadPromptTemplate("prompts/rag-chat-v1.txt");

@@ -1,5 +1,6 @@
 package databaseserver.ai;
 
+import databaseserver.ai.observability.PiiDetectedException;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,5 +61,11 @@ class SkillExtractorServiceTest {
         assertThatThrownBy(() -> skillExtractorService.extract("some job description"))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("LLM returned unparseable JSON");
+    }
+
+    @Test
+    void extract_shouldRejectJobDescriptionContainingEmail() {
+        assertThatThrownBy(() -> skillExtractorService.extract("Apply by emailing hr@company.com"))
+                .isInstanceOf(PiiDetectedException.class);
     }
 }

@@ -1,6 +1,7 @@
 package databaseserver.ai;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import databaseserver.ai.observability.PromptGuardrail;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.input.PromptTemplate;
 import org.springframework.core.io.ClassPathResource;
@@ -15,13 +16,16 @@ public class SkillExtractorService {
 
     private final ChatLanguageModel chatModel;
     private final ObjectMapper objectMapper;
+    private final PromptGuardrail promptGuardrail;
 
-    public SkillExtractorService(ChatLanguageModel chatModel, ObjectMapper objectMapper) {
+    public SkillExtractorService(ChatLanguageModel chatModel, ObjectMapper objectMapper, PromptGuardrail promptGuardrail) {
         this.chatModel = chatModel;
         this.objectMapper = objectMapper;
+        this.promptGuardrail = promptGuardrail;
     }
 
     public SkillsDto extract(String jobDescription) {
+        promptGuardrail.assertNoPii(jobDescription);
         String template = loadPromptTemplate("prompts/extract-skills-v1.txt");
         String prompt = PromptTemplate.from(template)
                 .apply(Map.of("job_description", jobDescription))
