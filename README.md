@@ -148,7 +148,7 @@ for PostgreSQL to respond.
 
 ---
 
-## AI Features (Phases 3-5)
+## AI Features (Phases 3-6)
 
 `AI-implementation` branch, part of the 6-phase plan in `AI/AI_Engineer_Interview_Prep.md`.
 
@@ -163,6 +163,10 @@ for PostgreSQL to respond.
 - **Phase 5 — AI observability**: every LLM call is logged to `ai_call_log` (prompt hash, tokens,
   latency), a PII guardrail rejects prompts containing emails/phone numbers, and a dedicated
   Grafana dashboard visualizes AI call volume and latency (see Observability below).
+- **Phase 6 — Eval dataset**: a golden-dataset eval (`SkillExtractorEvalIT`) runs the real LLM
+  against known job postings and asserts a minimum pass rate — skipped by default, run with
+  `AI_INTEGRATION_TEST=true mvn test`. Interview Q&A drilling (the original Phase 6 in the prep
+  plan) is ongoing practice, not something tracked here.
 
 ---
 

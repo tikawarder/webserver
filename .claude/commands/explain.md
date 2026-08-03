@@ -50,6 +50,16 @@ section unless the topic is explicitly asked about in an interview context
    - Walk through the pasted code block by block — what happens and why it's
      written that way — anchored to the actual lines, not abstract description
 
+3b. **Text/ASCII diagram (always include, directly in the terminal output)**
+   - Right after the code walkthrough, add a small ASCII diagram (boxes and
+     arrows, `-->`, `|`, simple box-drawing) showing the flow or structure of
+     the concept — e.g. request/response path, before/after states, a pipeline
+     of steps
+   - Plain text only, printed inline in the response — never use the `Artifact`
+     tool or any browser-based rendering for this
+   - Keep it to the actual mechanism just explained, not a generic textbook
+     diagram — it should visualize the specific code/flow just walked through
+
 4. **QA-angle close (2-3 sentences, only if it adds something)**
    - Why is it done this way — what's the alternative or what came before it?
    - What would break, or what would you lose, if you did it the naive/other way?
