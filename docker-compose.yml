@@ -164,6 +164,7 @@ services:
     build:
       context: ./ReactiveService
     container_name: reactive_service
+    restart: on-failure:5
     depends_on:
       postgres_db:
         condition: service_healthy
