@@ -50,7 +50,7 @@ PostgreSQL
 ```bash
 git clone <repo>
 cd webserver
-git checkout keycloak-iam
+git checkout AI-implementation
 docker compose up --build
 ```
 
@@ -88,6 +88,7 @@ Open **http://localhost:9080** → Click "Sign in with Keycloak" → Login: `adm
 | Metrics | Micrometer + Prometheus + Grafana (JVM dashboard) |
 | Testing | Spring Cloud Contract, Playwright E2E |
 | Infra | Docker Compose with healthchecks |
+| AI | LangChain4j, Anthropic Claude API, pgvector (RAG) |
 
 ---
 
@@ -147,13 +148,35 @@ for PostgreSQL to respond.
 
 ---
 
+## AI Features (Phases 3-6)
+
+`AI-implementation` branch, part of the 6-phase plan in `AI/AI_Engineer_Interview_Prep.md`.
+
+- **Phase 3 — RAG chatbot**: answers questions grounded in a source document (currently a public
+  Kubernetes overview, adapted from Wikipedia CC BY-SA 4.0 — not personal data). After the usual
+  **Quick start** above, log in and use the chat panel (bottom-right, where the page-refresh
+  counter used to be): click "Re-ingest source document" once, then ask a question. Off-topic
+  questions get refused instead of a hallucinated answer.
+- **Phase 4 — Job Application Agent** (`POST /api/ai/agent/apply`): a tool-using ReAct agent that
+  fetches a job posting, extracts required skills, checks matching experience via RAG, and drafts
+  a cover letter section — deciding the step order itself instead of following a fixed pipeline.
+- **Phase 5 — AI observability**: every LLM call is logged to `ai_call_log` (prompt hash, tokens,
+  latency), a PII guardrail rejects prompts containing emails/phone numbers, and a dedicated
+  Grafana dashboard visualizes AI call volume and latency (see Observability below).
+- **Phase 6 — Eval dataset**: a golden-dataset eval (`SkillExtractorEvalIT`) runs the real LLM
+  against known job postings and asserts a minimum pass rate — skipped by default, run with
+  `AI_INTEGRATION_TEST=true mvn test`. Interview Q&A drilling (the original Phase 6 in the prep
+  plan) is ongoing practice, not something tracked here.
+
+---
+
 ## What's next / learning roadmap
 
 - [x] Role-based authorization (ADMIN vs USER permissions)
 - [x] Keycloak IAM integration
-- [ ] Kubernetes deployment (Minikube config already started)
-- [ ] CI/CD with GitHub Actions
-- [ ] Secret management (Vault or GCP Secret Manager)
+- [x] Kubernetes deployment (full `k8s/` manifests — probes, HPA, Ingress, rolling updates; see `k8s/README.md`)
+- [x] CI/CD with GitHub Actions (`.github/workflows/ci.yml` — backend, frontend, Terraform, Docker build)
+- [ ] Secret management (Vault or GCP Secret Manager) — currently base64-encoded k8s Secrets
 
 ---
 
@@ -199,6 +222,6 @@ npx playwright install chromium
 | Keycloak Admin | http://localhost:8180/admin |
 | Zipkin traces | http://localhost:9411 |
 | Prometheus | http://localhost:9091 |
-| Grafana | http://localhost:3000 (admin / admin) |
+| Grafana | http://localhost:3000 (admin / admin) — includes a dedicated AI observability dashboard (`ai-observability.json`) |
 | Auth actuator | http://localhost:9083/actuator/health |
 | DB actuator | http://localhost:9081/actuator/health |

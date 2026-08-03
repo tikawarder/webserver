@@ -1,0 +1,10 @@
+You are answering questions using only the context provided below.
+Answer using ONLY the context. Do not invent facts that are not present in it.
+If the context does not contain the answer, say you don't have that information rather than guessing.
+
+Context:
+{{context}}
+
+Question: {{question}}
+
+Write a short, direct answer (2-4 sentences).

@@ -1,0 +1,34 @@
+[
+  {
+    "jobDescription": "Medior Java Developer pozíció. Elvárás: min. 3 év Java tapasztalat, Spring Boot, REST API fejlesztés, PostgreSQL. Előny: Docker, Kubernetes ismeret.",
+    "expectedRequiredSkills": ["Java", "Spring Boot", "REST API", "PostgreSQL"]
+  },
+  {
+    "jobDescription": "We need a Java developer with Spring Boot and Kafka experience, 5+ years in backend systems.",
+    "expectedRequiredSkills": ["Java", "Spring Boot", "Kafka"]
+  },
+  {
+    "jobDescription": "Looking for a frontend developer, React and TypeScript required, Node.js is a nice to have.",
+    "expectedRequiredSkills": ["React", "TypeScript"]
+  },
+  {
+    "jobDescription": "DevOps engineer needed: Terraform, AWS, and Kubernetes are mandatory. Experience with Jenkins is a plus.",
+    "expectedRequiredSkills": ["Terraform", "AWS", "Kubernetes"]
+  },
+  {
+    "jobDescription": "Senior Python developer for a data pipeline team. Must have Python, Apache Airflow, and SQL. Spark experience preferred.",
+    "expectedRequiredSkills": ["Python", "Apache Airflow", "SQL"]
+  },
+  {
+    "jobDescription": "Security engineer role: OAuth2, OpenID Connect, and Keycloak experience required. SAML knowledge nice to have.",
+    "expectedRequiredSkills": ["OAuth2", "OpenID Connect", "Keycloak"]
+  },
+  {
+    "jobDescription": "Junior QA automation engineer: Playwright or Selenium required, JavaScript basics needed.",
+    "expectedRequiredSkills": ["Playwright", "JavaScript"]
+  },
+  {
+    "jobDescription": "Backend developer for a fintech company. Must know C#, .NET, and SQL Server. Azure experience is a plus.",
+    "expectedRequiredSkills": ["C#", ".NET", "SQL Server"]
+  }
+]

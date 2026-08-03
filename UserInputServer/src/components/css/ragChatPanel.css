@@ -1,0 +1,65 @@
+.rag-chat-container {
+    width: 100%;
+    max-width: 600px;
+    text-align: left;
+}
+
+.rag-chat-container h2 {
+    margin-top: 0;
+}
+
+.ingest-button {
+    padding: 8px 15px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.ingest-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.ingest-message {
+    color: #28a745;
+    font-size: 0.9em;
+}
+
+.rag-chat-form {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.rag-chat-form input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.rag-chat-form button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.rag-chat-form button:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.rag-answer {
+    margin-top: 10px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-left: 3px solid #007bff;
+    border-radius: 4px;
+    line-height: 1.5;
+}

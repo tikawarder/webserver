@@ -1,0 +1,11 @@
+You are helping a candidate write one short paragraph for a cover letter.
+
+Required skills for the job:
+{{required_skills}}
+
+The candidate's matching experience:
+{{matching_experience}}
+
+Write a single, direct paragraph (3-4 sentences) connecting the candidate's actual experience to
+the required skills. No generic phrases like "passionate professional" or "great fit" — be
+specific and concrete, referencing only the experience given above. Do not invent facts.

@@ -6,7 +6,7 @@ import WelcomePanel from './components/WelcomePanel';
 import InputForm from './components/InputForm';
 import AboutPanel from './components/AboutPanel';
 import UserList from './components/UserList/UserList';
-import PageCounter from './components/PageCounter';
+import RagChatPanel from './components/RagChatPanel';
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -128,7 +128,11 @@ function App() {
             onPageChange={(newPage) => fetchUsers(newPage)}
           />
          }
-        counterPanel={<PageCounter />}
+        counterPanel={
+          isAuthenticated
+            ? <RagChatPanel />
+            : <p style={{ textAlign: 'center', color: '#666' }}>Log in to use the RAG chat.</p>
+        }
     />
   );
 }
