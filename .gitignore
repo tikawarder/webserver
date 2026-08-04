@@ -40,3 +40,10 @@ UserInputServer/test-results/
 ### Environment ###
 .env
 *.env
+
+### Terraform ###
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+/AWS.txt
