@@ -6,9 +6,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -17,14 +19,14 @@ public class KafkaProducerService {
 
     private static final String TOPIC = "user-created";
     private final KafkaTemplate<String, UserCreatedEvent> kafkaTemplate;
-    private final Tracer tracer; // Micrometer Tracer – injected by Spring
+    private final Tracer tracer;
 
-    public void sendUserCreatedEvent(UserCreatedEvent event) {
-        // Build a ProducerRecord so we can attach headers
+    // Returns the send future so callers can wait for the broker ack instead of
+    // assuming success once this method returns (KafkaTemplate.send is async).
+    public CompletableFuture<SendResult<String, UserCreatedEvent>> sendUserCreatedEvent(UserCreatedEvent event) {
         ProducerRecord<String, UserCreatedEvent> record =
                 new ProducerRecord<>(TOPIC, String.valueOf(event.getId()), event);
 
-        // If there is an active trace (there will be when triggered by an HTTP request), propagate it
         var currentSpan = tracer.currentSpan();
         if (currentSpan != null) {
             String traceId = currentSpan.context().traceId();
@@ -34,6 +36,6 @@ public class KafkaProducerService {
             log.info("Sending UserCreatedEvent to Kafka (no active trace)");
         }
 
-        kafkaTemplate.send(record);
+        return kafkaTemplate.send(record);
     }
 }
