@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -37,11 +38,26 @@ public class OutboxPublisher {
 
         log.info("Found {} pending outbox messages to publish to Kafka.", pendingMessages.size());
 
-        List<CompletableFuture<Void>> futures = pendingMessages.stream()
-                .map(message -> CompletableFuture.runAsync(() -> publishSingleMessage(message), outboxPublisherExecutor))
-                .toList();
+        List<CompletableFuture<Void>> submittedTasks = feedThreadPool(pendingMessages);
+        waitForAllToFinish(submittedTasks);
+    }
 
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+    // Hands each message to the thread pool. runAsync() returns immediately —
+    // it does not wait for the task to actually run.
+    private List<CompletableFuture<Void>> feedThreadPool(List<OutboxMessage> pendingMessages) {
+        List<CompletableFuture<Void>> submittedTasks = new ArrayList<>();
+        for (OutboxMessage message : pendingMessages) {
+            CompletableFuture<Void> task = CompletableFuture.runAsync(
+                    () -> publishSingleMessage(message), outboxPublisherExecutor);
+            submittedTasks.add(task);
+        }
+        return submittedTasks;
+    }
+
+    // Blocks the scheduler thread here until every submitted task has finished.
+    private void waitForAllToFinish(List<CompletableFuture<Void>> submittedTasks) {
+        CompletableFuture<Void> allTasks = CompletableFuture.allOf(submittedTasks.toArray(new CompletableFuture[0]));
+        allTasks.join();
     }
 
     private void publishSingleMessage(OutboxMessage message) {
