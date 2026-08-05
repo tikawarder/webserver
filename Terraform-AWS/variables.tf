@@ -27,3 +27,56 @@ variable "repo_branch" {
   type        = string
   default     = "master"
 }
+
+variable "app_instance_type" {
+  description = "Instance type for the ECS container instance running the 6 self-built services. t3.micro can't fit all 6 simultaneously (each reserves 300MB, 6x exceeds the ~950MB usable on a 1GB box). t3.medium would fix that, but this account's Free Tier restriction blocks launching any non-free-tier-eligible type — so we stay on t3.micro and run a subset instead (see enabled_services)."
+  type        = string
+  default     = "t3.micro"
+}
+
+variable "enabled_services" {
+  description = "Subset of ecs_services actually scheduled (desired_count = 1) — the rest stay defined but scaled to 0. Needed because t3.micro only fits ~3 of the 6 services at once."
+  type        = list(string)
+  default     = ["auth-service", "database-server", "gateway"]
+}
+
+variable "ecs_services" {
+  description = "The 6 self-built services, each getting an ECR repository, task definition, and ECS service"
+  type = map(object({
+    context_dir    = string # not used by Terraform directly — documents the docker build context for build-and-push.sh
+    container_port = number
+    host_port      = number
+  }))
+  default = {
+    auth-service = {
+      context_dir    = "AuthService"
+      container_port = 8083
+      host_port      = 9083
+    }
+    database-server = {
+      context_dir    = "DatabaseServer"
+      container_port = 8081
+      host_port      = 9081
+    }
+    notification-service = {
+      context_dir    = "NotificationService"
+      container_port = 8082
+      host_port      = 9082
+    }
+    gateway = {
+      context_dir    = "GatewayService"
+      container_port = 8090
+      host_port      = 9090
+    }
+    userinput-server = {
+      context_dir    = "UserInputServer"
+      container_port = 8080
+      host_port      = 9080
+    }
+    reactive-service = {
+      context_dir    = "ReactiveService"
+      container_port = 8084
+      host_port      = 9084
+    }
+  }
+}

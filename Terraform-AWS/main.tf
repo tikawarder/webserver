@@ -72,6 +72,17 @@ resource "aws_security_group" "app" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Phase 2: the ECS-hosted app services (different EC2 instance) need to reach
+  # Postgres/Keycloak/Kafka/Zipkin/Redis here, and vice versa — both instances
+  # share this security group, so this just opens traffic within the VPC.
+  ingress {
+    description = "Internal VPC traffic between infra and app instances"
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [aws_vpc.main.cidr_block]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -117,15 +128,25 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-resource "aws_instance" "app_server" {
+resource "aws_instance" "infra_server" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = var.instance_type
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.app.id]
   iam_instance_profile   = aws_iam_instance_profile.ssm.name
 
+  # The AMI's default root volume (~8GiB) filled up mid-boot pulling all 8
+  # infra images, which silently killed the rest of user_data (including the
+  # docker-compose up call) — 30GiB stays within the Free Tier EBS allowance.
+  root_block_device {
+    volume_size = 30
+    volume_type = "gp3"
+  }
+
   # Installs Docker + Compose and clones the repo on first boot — the same
-  # pattern as the GCP VM's metadata_startup_script.
+  # pattern as the GCP VM's metadata_startup_script. Phase 2: only starts the
+  # 8 infra services (ready-made images, no build step) — the 6 self-built
+  # services now run on the separate ECS container instance instead.
   user_data = <<-EOT
     #!/bin/bash
     dnf install -y docker git
@@ -143,15 +164,15 @@ resource "aws_instance" "app_server" {
     mkdir -p AI
     echo "GEMINI_API_KEY=not-configured" > AI/.env
 
-    /usr/local/bin/docker-compose up -d
+    /usr/local/bin/docker-compose up -d postgres_db keycloak zookeeper kafka zipkin redis prometheus grafana
   EOT
 
   tags = {
-    Name = "webserver-learning-app-server"
+    Name = "webserver-learning-infra-server"
   }
 }
 
-resource "aws_eip" "app_server" {
-  instance = aws_instance.app_server.id
+resource "aws_eip" "infra_server" {
+  instance = aws_instance.infra_server.id
   domain   = "vpc"
 }
