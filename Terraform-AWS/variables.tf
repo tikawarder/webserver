@@ -35,48 +35,55 @@ variable "app_instance_type" {
 }
 
 variable "enabled_services" {
-  description = "Subset of ecs_services actually scheduled (desired_count = 1) — the rest stay defined but scaled to 0. Needed because t3.micro only fits ~3 of the 6 services at once."
+  description = "Subset of ecs_services actually scheduled (desired_count = 1) — the rest stay defined but scaled to 0. Tried all 6 at once with tightened per-service memory (see ecs_services.memory): confirmed unstable — tasks OOM-kill and flap unpredictably because 6 JVMs' combined peak usage exceeds the t3.micro's ~916MB even with small heaps. Back to the stable subset of 3."
   type        = list(string)
   default     = ["auth-service", "database-server", "gateway"]
 }
 
 variable "ecs_services" {
-  description = "The 6 self-built services, each getting an ECR repository, task definition, and ECS service"
+  description = "The 6 self-built services, each getting an ECR repository, task definition, and ECS service. memory is the hard docker limit (MB) — sized per service so all 6 fit in the ~916MB the t3.micro registers with ECS; userinput-server is plain nginx (no JVM) so it gets much less."
   type = map(object({
     context_dir    = string # not used by Terraform directly — documents the docker build context for build-and-push.sh
     container_port = number
     host_port      = number
+    memory         = number
   }))
   default = {
     auth-service = {
       context_dir    = "AuthService"
       container_port = 8083
       host_port      = 9083
+      memory         = 170
     }
     database-server = {
       context_dir    = "DatabaseServer"
       container_port = 8081
       host_port      = 9081
+      memory         = 230
     }
     notification-service = {
       context_dir    = "NotificationService"
       container_port = 8082
       host_port      = 9082
+      memory         = 130
     }
     gateway = {
       context_dir    = "GatewayService"
       container_port = 8090
       host_port      = 9090
+      memory         = 150
     }
     userinput-server = {
       context_dir    = "UserInputServer"
       container_port = 8080
       host_port      = 9080
+      memory         = 65
     }
     reactive-service = {
       context_dir    = "ReactiveService"
       container_port = 8084
       host_port      = 9084
+      memory         = 130
     }
   }
 }

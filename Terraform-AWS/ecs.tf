@@ -159,6 +159,7 @@ locals {
       SPRING_DATASOURCE_PASSWORD    = "password"
       SPRING_JPA_HIBERNATE_DDL_AUTO = "update"
       ZIPKIN_ENDPOINT               = "http://${local.infra_private}:9411/api/v2/spans"
+      JAVA_TOOL_OPTIONS             = "-Xmx80m"
     }
     database-server = {
       SPRING_DATASOURCE_URL                                 = "jdbc:postgresql://${local.infra_private}:5432/usersdb"
@@ -171,18 +172,18 @@ locals {
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI = "http://${local.infra_public}:8180/realms/webserver-realm/protocol/openid-connect/certs"
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI  = "http://${local.infra_public}:8180/realms/webserver-realm"
       REDIS_HOST                                            = local.infra_private
-      JAVA_TOOL_OPTIONS                                     = "-Xmx192m"
+      JAVA_TOOL_OPTIONS                                     = "-Xmx100m"
     }
     notification-service = {
       KAFKA_BOOTSTRAP_SERVERS = "${local.infra_private}:9092"
       ZIPKIN_ENDPOINT         = "http://${local.infra_private}:9411/api/v2/spans"
-      JAVA_TOOL_OPTIONS       = "-Xmx160m"
+      JAVA_TOOL_OPTIONS       = "-Xmx60m"
     }
     gateway = {
       ZIPKIN_ENDPOINT                                       = "http://${local.infra_private}:9411/api/v2/spans"
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI = "http://${local.infra_public}:8180/realms/webserver-realm/protocol/openid-connect/certs"
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI  = "http://${local.infra_public}:8180/realms/webserver-realm"
-      JAVA_TOOL_OPTIONS                                     = "-Xmx160m"
+      JAVA_TOOL_OPTIONS                                     = "-Xmx70m"
     }
     userinput-server = {
       REACT_APP_API_URL = "http://${local.infra_public}:9090"
@@ -192,7 +193,7 @@ locals {
       SPRING_R2DBC_USERNAME = "user"
       SPRING_R2DBC_PASSWORD = "password"
       SPRING_SQL_INIT_MODE  = "always"
-      JAVA_TOOL_OPTIONS     = "-Xmx160m"
+      JAVA_TOOL_OPTIONS     = "-Xmx60m"
     }
   }
 }
@@ -204,7 +205,7 @@ resource "aws_ecs_task_definition" "services" {
   requires_compatibilities = ["EC2"]
   network_mode             = "bridge"
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
-  memory                   = 300
+  memory                   = each.value.memory
   cpu                      = 256
 
   container_definitions = jsonencode([{
