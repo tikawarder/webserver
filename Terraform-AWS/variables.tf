@@ -10,6 +10,13 @@ variable "instance_type" {
   default     = "t3.medium"
 }
 
+variable "gemini_api_key" {
+  description = "Real key is injected via local.gemini_api_key (read from the gitignored ../AI/.env); this default is only a placeholder for when that file is absent."
+  type        = string
+  sensitive   = true
+  default     = "not-configured"
+}
+
 variable "app_port" {
   description = "Port the React app (UserInputServer/nginx) listens on, per docker-compose.yml"
   type        = number
@@ -37,7 +44,7 @@ variable "app_instance_type" {
 variable "enabled_services" {
   description = "Subset of ecs_services actually scheduled (desired_count = 1) — the rest stay defined but scaled to 0. All 6 enabled now that app_instance_type is t3.medium (4GB), which fits all 6 JVMs even at their original per-service memory sizing."
   type        = list(string)
-  default     = ["auth-service", "database-server", "notification-service", "gateway", "userinput-server", "reactive-service"]
+  default     = []
 }
 
 variable "ecs_services" {

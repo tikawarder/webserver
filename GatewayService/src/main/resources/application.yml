@@ -15,12 +15,12 @@ spring:
             allowCredentials: true
       routes:
         - id: auth-service
-          uri: "http://auth-service:8083"
+          uri: ${AUTH_SERVICE_URI:http://auth-service:8083}
           predicates:
             - Path=/api/auth/**
 
         - id: database-server
-          uri: "http://database-server:8081"
+          uri: ${DATABASE_SERVER_URI:http://database-server:8081}
           predicates:
             - Path=/api/**
 

@@ -152,6 +152,12 @@ locals {
   infra_private = aws_instance.infra_server.private_ip
   infra_public  = aws_eip.infra_server.public_ip
 
+  # Sibling containers on the same ECS host reach each other via the docker0 bridge gateway IP, not compose-style DNS.
+  ecs_bridge_ip = "172.17.0.1"
+
+  # Terraform variable defaults can't call functions, so the gitignored ../AI/.env read happens here instead.
+  gemini_api_key = fileexists("../AI/.env") ? trimspace(split("=", file("../AI/.env"))[1]) : var.gemini_api_key
+
   service_env = {
     auth-service = {
       SPRING_DATASOURCE_URL         = "jdbc:postgresql://${local.infra_private}:5432/authdb"
@@ -172,6 +178,8 @@ locals {
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI = "http://${local.infra_public}:8180/realms/webserver-realm/protocol/openid-connect/certs"
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI  = "http://${local.infra_public}:8180/realms/webserver-realm"
       REDIS_HOST                                            = local.infra_private
+      AUTH_SERVICE_URL                                      = "http://${local.ecs_bridge_ip}:9083/api/auth/validate/"
+      GEMINI_API_KEY                                         = local.gemini_api_key
       JAVA_TOOL_OPTIONS                                     = "-Xmx300m"
     }
     notification-service = {
@@ -183,6 +191,8 @@ locals {
       ZIPKIN_ENDPOINT                                       = "http://${local.infra_private}:9411/api/v2/spans"
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI = "http://${local.infra_public}:8180/realms/webserver-realm/protocol/openid-connect/certs"
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI  = "http://${local.infra_public}:8180/realms/webserver-realm"
+      AUTH_SERVICE_URI                                      = "http://${local.ecs_bridge_ip}:9083"
+      DATABASE_SERVER_URI                                   = "http://${local.ecs_bridge_ip}:9081"
       JAVA_TOOL_OPTIONS                                     = "-Xmx250m"
     }
     userinput-server = {

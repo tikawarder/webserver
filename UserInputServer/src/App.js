@@ -27,7 +27,8 @@ function App() {
     keycloak.init({
       onLoad: 'check-sso',
       silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
-      pkceMethod: 'S256',
+      // crypto.subtle (needed for PKCE) only exists in secure contexts (HTTPS/localhost) — this deployment is plain HTTP on a public IP.
+      pkceMethod: window.isSecureContext ? 'S256' : false,
     })
       .then((authenticated) => {
         setKeycloakReady(true);
