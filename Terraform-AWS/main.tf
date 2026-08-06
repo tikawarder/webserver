@@ -72,6 +72,15 @@ resource "aws_security_group" "app" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # OAuth2/OIDC redirect flow sends the browser to Keycloak directly, not through the app instance.
+  ingress {
+    description = "Keycloak login (browser redirect target)"
+    from_port   = 8180
+    to_port     = 8180
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   # Phase 2: the ECS-hosted app services (different EC2 instance) need to reach
   # Postgres/Keycloak/Kafka/Zipkin/Redis here, and vice versa — both instances
   # share this security group, so this just opens traffic within the VPC.

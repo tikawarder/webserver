@@ -6,7 +6,7 @@
 # Usage: AWS_PROFILE=terraform-deployer ./build-and-push.sh
 set -euo pipefail
 
-REGION="${AWS_DEFAULT_REGION:-us-east-1}"
+REGION="${AWS_DEFAULT_REGION:-eu-central-1}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)

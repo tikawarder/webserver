@@ -13,9 +13,9 @@ components.
   with only the necessary ports open on the Security Group.
 - **No open port 22 (SSH)** — administration goes through AWS SSM Session Manager,
   which needs no inbound port at all.
-- **Dedicated IAM user for Terraform** (`terraform-deployer`), not the root account —
-  scoped permissions: `AmazonEC2FullAccess` plus a custom IAM policy limited to
-  `webserver-learning-*` named roles/instance profiles (not `IAMFullAccess`).
+- **Dedicated IAM user for Terraform** (`terraform-deployer`), not the root account.
+  Currently granted `AdministratorAccess` for simplicity (personal learning account,
+  not a shared/production one) rather than a scoped policy.
 
 ## Prerequisites (one-time, at account setup)
 

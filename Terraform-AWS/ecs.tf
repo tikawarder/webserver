@@ -159,7 +159,7 @@ locals {
       SPRING_DATASOURCE_PASSWORD    = "password"
       SPRING_JPA_HIBERNATE_DDL_AUTO = "update"
       ZIPKIN_ENDPOINT               = "http://${local.infra_private}:9411/api/v2/spans"
-      JAVA_TOOL_OPTIONS             = "-Xmx80m"
+      JAVA_TOOL_OPTIONS             = "-Xmx250m"
     }
     database-server = {
       SPRING_DATASOURCE_URL                                 = "jdbc:postgresql://${local.infra_private}:5432/usersdb"
@@ -172,28 +172,28 @@ locals {
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI = "http://${local.infra_public}:8180/realms/webserver-realm/protocol/openid-connect/certs"
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI  = "http://${local.infra_public}:8180/realms/webserver-realm"
       REDIS_HOST                                            = local.infra_private
-      JAVA_TOOL_OPTIONS                                     = "-Xmx100m"
+      JAVA_TOOL_OPTIONS                                     = "-Xmx300m"
     }
     notification-service = {
       KAFKA_BOOTSTRAP_SERVERS = "${local.infra_private}:9092"
       ZIPKIN_ENDPOINT         = "http://${local.infra_private}:9411/api/v2/spans"
-      JAVA_TOOL_OPTIONS       = "-Xmx60m"
+      JAVA_TOOL_OPTIONS       = "-Xmx200m"
     }
     gateway = {
       ZIPKIN_ENDPOINT                                       = "http://${local.infra_private}:9411/api/v2/spans"
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI = "http://${local.infra_public}:8180/realms/webserver-realm/protocol/openid-connect/certs"
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI  = "http://${local.infra_public}:8180/realms/webserver-realm"
-      JAVA_TOOL_OPTIONS                                     = "-Xmx70m"
+      JAVA_TOOL_OPTIONS                                     = "-Xmx250m"
     }
     userinput-server = {
-      REACT_APP_API_URL = "http://${local.infra_public}:9090"
+      KEYCLOAK_URL = "http://${local.infra_public}:8180"
     }
     reactive-service = {
       SPRING_R2DBC_URL      = "r2dbc:postgresql://${local.infra_private}:5432/reactivedb"
       SPRING_R2DBC_USERNAME = "user"
       SPRING_R2DBC_PASSWORD = "password"
       SPRING_SQL_INIT_MODE  = "always"
-      JAVA_TOOL_OPTIONS     = "-Xmx60m"
+      JAVA_TOOL_OPTIONS     = "-Xmx250m"
     }
   }
 }
@@ -239,6 +239,13 @@ resource "aws_ecs_service" "services" {
   task_definition = aws_ecs_task_definition.services[each.key].arn
   desired_count   = contains(var.enabled_services, each.key) ? 1 : 0
   launch_type     = "EC2"
+
+  # Single-EC2-host cluster + static host ports (bridge mode) means a new task
+  # definition can't start alongside the old one — the port is already taken.
+  # Default ECS behavior (start-new-before-stopping-old) deadlocks in that case;
+  # this forces stop-old-then-start-new instead.
+  deployment_maximum_percent         = 100
+  deployment_minimum_healthy_percent = 0
 
   depends_on = [aws_ecs_cluster_capacity_providers.main]
 }
