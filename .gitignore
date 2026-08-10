@@ -40,3 +40,5 @@ UserInputServer/test-results/
 ### Environment ###
 .env
 *.env
+jmeter/results.jtl
+jmeter/jmeter.log
