@@ -40,6 +40,15 @@ function SqlConsolePanel() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setSql(
+      "-- Thread-A:\n" +
+      "SELECT * FROM demo_orders WHERE id = 1 FOR UPDATE;\n" +
+      "UPDATE demo_orders SET product = 'Thread-A_touched' WHERE id = 1;\n" +
+      "\n" +
+      "-- Thread-B (runs 200ms later, against the same row):\n" +
+      "SELECT * FROM demo_orders WHERE id = 1 FOR UPDATE;\n" +
+      "UPDATE demo_orders SET product = 'Thread-B_touched' WHERE id = 1;"
+    );
 
     try {
       const response = await fetch('/api/rawsql/pessimistic-lock/demo?orderId=1&holdMillis=1500', {

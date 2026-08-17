@@ -1,7 +1,5 @@
 package databaseserver.sql.service;
 
-import databaseserver.postgresql.model.Order;
-import databaseserver.postgresql.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,7 +16,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 /**
  * Hand-written native SQL, execution plans, pessimistic locking and a stored
@@ -31,7 +28,6 @@ import java.util.NoSuchElementException;
 public class RawSqlDemoService {
 
     private final JdbcTemplate jdbcTemplate;
-    private final OrderRepository orderRepository;
 
     // =========================================================================
     // NATIVE SQL JOIN — hand-written SQL, no JPQL
@@ -63,15 +59,16 @@ public class RawSqlDemoService {
     @Transactional
     public void lockAndHoldOrder(Long orderId, String label, long holdMillis, long startNanos, List<String> timeline) {
         timeline.add(elapsedMs(startNanos) + "ms " + label + " requesting lock");
-        Order order = orderRepository.findByIdForUpdate(orderId)
-                .orElseThrow(() -> new NoSuchElementException("Order not found: " + orderId));
+        jdbcTemplate.queryForMap("SELECT * FROM demo_orders WHERE id = ? FOR UPDATE", orderId);
+
         timeline.add(elapsedMs(startNanos) + "ms " + label + " acquired lock, holding " + holdMillis + "ms");
         try {
             Thread.sleep(holdMillis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        order.setProduct(label + "_touched");
+
+        jdbcTemplate.update("UPDATE demo_orders SET product = ? WHERE id = ?", label + "_touched", orderId);
         timeline.add(elapsedMs(startNanos) + "ms " + label + " committing (releasing lock)");
     }
 
