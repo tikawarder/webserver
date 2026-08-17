@@ -76,7 +76,7 @@ function SqlConsolePanel() {
             value={sql}
             onChange={(e) => setSql(e.target.value)}
             placeholder="SELECT * FROM demo_orders"
-            rows={4}
+            rows={10}
             data-testid="sql-console-input"
           />
           <div className="sql-console-buttons">
