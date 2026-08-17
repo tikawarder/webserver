@@ -5,8 +5,8 @@ import MainLayout from './components/MainLayout';
 import WelcomePanel from './components/WelcomePanel';
 import InputForm from './components/InputForm';
 import AboutPanel from './components/AboutPanel';
-import UserList from './components/UserList/UserList';
 import RagChatPanel from './components/RagChatPanel';
+import SqlConsolePanel from './components/SqlConsolePanel';
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -117,17 +117,7 @@ function App() {
             ? <InputForm onSubmissionSuccess={handleSuccessSubmit} />
             : <AboutPanel />
         }
-        listPanel={
-          <UserList
-            users={users}
-            loading={loading}
-            error={error}
-            onRefresh={() => fetchUsers(0)}
-            page={page}
-            totalPages={totalPages}
-            onPageChange={(newPage) => fetchUsers(newPage)}
-          />
-         }
+        listPanel={ <SqlConsolePanel /> }
         counterPanel={
           isAuthenticated
             ? <RagChatPanel />

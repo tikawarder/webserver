@@ -1,7 +1,9 @@
 package databaseserver.postgresql.repository;
 
 import databaseserver.postgresql.model.Order;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository for Order queries.
@@ -84,4 +87,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Transactional
     @Query("UPDATE Order o SET o.product = :product, o.version = o.version + 1 WHERE o.id = :id AND o.version = :expectedVersion")
     int tryUpdateWithVersion(@Param("id") Long id, @Param("product") String product, @Param("expectedVersion") Long expectedVersion);
+
+    // =========================================================================
+    // PESSIMISTIC LOCKING — DB-level row lock (contrast with OPTIMISTIC LOCKING above)
+    // =========================================================================
+
+    // Generates "SELECT ... FOR UPDATE" — blocks concurrent readers instead of failing at commit.
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT o FROM Order o WHERE o.id = :id")
+    Optional<Order> findByIdForUpdate(@Param("id") Long id);
 }

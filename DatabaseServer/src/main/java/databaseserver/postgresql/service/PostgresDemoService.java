@@ -59,7 +59,20 @@ public class PostgresDemoService {
         Customer charlie = Customer.builder()
                 .name("Charlie Toth").email("charlie@demo.com").city("Budapest").build();
 
-        customerRepository.saveAll(List.of(alice, bob, charlie));
+        // Extra customers, appended after alice/bob/charlie so RelationshipDemoService's
+        // customers.get(0/1/2) indexing (Alice/Bob/Charlie) keeps working unchanged.
+        Customer dora = Customer.builder()
+                .name("Dora Nagy").email("dora@demo.com").city("Szeged").build();
+        Customer elek = Customer.builder()
+                .name("Elek Farkas").email("elek@demo.com").city("Pecs").build();
+        Customer fanni = Customer.builder()
+                .name("Fanni Balogh").email("fanni@demo.com").city("Gyor").build();
+        Customer gabor = Customer.builder()
+                .name("Gabor Kiss").email("gabor@demo.com").city("Miskolc").build();
+        Customer hanna = Customer.builder()
+                .name("Hanna Szabo").email("hanna@demo.com").city("Nyiregyhaza").build();
+
+        customerRepository.saveAll(List.of(alice, bob, charlie, dora, elek, fanni, gabor, hanna));
 
         Order o1 = Order.builder().product("Laptop").amount(new BigDecimal("1200.00"))
                 .status(Order.OrderStatus.DELIVERED).createdAt(LocalDateTime.now().minusDays(10))
@@ -71,8 +84,47 @@ public class PostgresDemoService {
                 .status(Order.OrderStatus.PENDING).createdAt(LocalDateTime.now().minusDays(1))
                 .customer(bob).build();
 
-        orderRepository.saveAll(List.of(o1, o2, o3));
-        log.info("[DEMO] Seeding complete: 3 customers, 3 orders.");
+        // Extra orders, appended after o1/o2/o3 so RelationshipDemoService's orders.get(0/1/2)
+        // indexing (Laptop/Monitor/Keyboard) keeps working unchanged.
+        Order o4 = Order.builder().product("Desk Chair").amount(new BigDecimal("220.00"))
+                .status(Order.OrderStatus.CONFIRMED).createdAt(LocalDateTime.now().minusDays(3))
+                .customer(bob).build();
+        Order o5 = Order.builder().product("Webcam").amount(new BigDecimal("65.00"))
+                .status(Order.OrderStatus.CANCELLED).createdAt(LocalDateTime.now().minusDays(7))
+                .customer(charlie).build();
+        Order o6 = Order.builder().product("Headset").amount(new BigDecimal("95.00"))
+                .status(Order.OrderStatus.DELIVERED).createdAt(LocalDateTime.now().minusDays(20))
+                .customer(dora).build();
+        Order o7 = Order.builder().product("Standing Desk").amount(new BigDecimal("480.00"))
+                .status(Order.OrderStatus.SHIPPED).createdAt(LocalDateTime.now().minusDays(2))
+                .customer(dora).build();
+        Order o8 = Order.builder().product("Mouse").amount(new BigDecimal("45.00"))
+                .status(Order.OrderStatus.DELIVERED).createdAt(LocalDateTime.now().minusDays(15))
+                .customer(elek).build();
+        Order o9 = Order.builder().product("Monitor Arm").amount(new BigDecimal("130.00"))
+                .status(Order.OrderStatus.PENDING).createdAt(LocalDateTime.now().minusDays(1))
+                .customer(elek).build();
+        Order o10 = Order.builder().product("Laptop Stand").amount(new BigDecimal("60.00"))
+                .status(Order.OrderStatus.DELIVERED).createdAt(LocalDateTime.now().minusDays(30))
+                .customer(fanni).build();
+        Order o11 = Order.builder().product("Docking Station").amount(new BigDecimal("175.00"))
+                .status(Order.OrderStatus.CONFIRMED).createdAt(LocalDateTime.now().minusDays(4))
+                .customer(fanni).build();
+        Order o12 = Order.builder().product("External SSD").amount(new BigDecimal("140.00"))
+                .status(Order.OrderStatus.SHIPPED).createdAt(LocalDateTime.now().minusDays(6))
+                .customer(gabor).build();
+        Order o13 = Order.builder().product("Graphics Tablet").amount(new BigDecimal("310.00"))
+                .status(Order.OrderStatus.DELIVERED).createdAt(LocalDateTime.now().minusDays(25))
+                .customer(gabor).build();
+        Order o14 = Order.builder().product("Router").amount(new BigDecimal("90.00"))
+                .status(Order.OrderStatus.CANCELLED).createdAt(LocalDateTime.now().minusDays(12))
+                .customer(hanna).build();
+        Order o15 = Order.builder().product("UPS Battery").amount(new BigDecimal("210.00"))
+                .status(Order.OrderStatus.PENDING).createdAt(LocalDateTime.now().minusDays(1))
+                .customer(hanna).build();
+
+        orderRepository.saveAll(List.of(o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15));
+        log.info("[DEMO] Seeding complete: 8 customers, 15 orders.");
     }
 
     // =========================================================================

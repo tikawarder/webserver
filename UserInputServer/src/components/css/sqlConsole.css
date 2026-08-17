@@ -1,0 +1,69 @@
+.sql-console-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.sql-console-top h2 {
+    margin-top: 0;
+}
+
+.sql-console-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sql-console-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: monospace;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+.sql-console-form button {
+    align-self: flex-start;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.sql-console-form button:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.sql-console-bottom {
+    flex: 1;
+    margin-top: 15px;
+    overflow-y: auto;
+}
+
+.sql-console-result {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-left: 3px solid #007bff;
+    border-radius: 4px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.sql-console-error {
+    padding: 15px;
+    background-color: #fff5f5;
+    border-left: 3px solid #dc3545;
+    border-radius: 4px;
+    color: #dc3545;
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+}

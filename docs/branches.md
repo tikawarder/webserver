@@ -19,6 +19,7 @@ These are all merged into `master` — the full journey is readable via `git log
 | Branch | Status | Description |
 |---|---|---|
 | `microservices` | 🔵 **current** | Full microservices stack: Spring Cloud Gateway, AuthService (JWT), DatabaseServer, NotificationService, Kafka (Outbox pattern), Resilience4j, Zipkin distributed tracing, Docker Compose with healthchecks |
+| `sql` | 🔵 active | Reset onto `master` tip (was stale, fully merged already). Raw SQL / Oracle-MSSQL-mentality practice: native JOIN query, real EXPLAIN ANALYZE execution plan, pessimistic locking (`FOR UPDATE`) vs. the existing optimistic locking demo, PostgreSQL plpgsql function, plus a `/api/rawsql/execute` console endpoint (⚠️ `permitAll`, arbitrary SQL — local learning sandbox only, never deploy as-is) — CompuTrend interview prep |
 
 ---
 
@@ -36,7 +37,6 @@ These are all merged into `master` — the full journey is readable via `git log
 
 | Branch | Description | Action |
 |---|---|---|
-| `sql` | SQL N+1 problem demo, JOIN FETCH solution — independent of the main stack | merge to master when ready |
 | `AI-implementation` | LLM integration experiment, Claude rules/skills setup | keep separate, not part of main line |
 
 ---
@@ -67,5 +67,5 @@ microservices  →  master          (when this phase is "done")
      ├── kubernetes     →  microservices   (K8s deployment)
      └── ci-cd          →  kubernetes      (pipeline on top)
 
-sql            →  master          (anytime, independent)
+sql            →  master          (already at master tip, merge whenever the raw-SQL work is done)
 ```
