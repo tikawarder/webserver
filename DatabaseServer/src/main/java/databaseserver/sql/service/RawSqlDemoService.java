@@ -59,17 +59,23 @@ public class RawSqlDemoService {
     @Transactional
     public void lockAndHoldOrder(Long orderId, String label, long holdMillis, long startNanos, List<String> timeline) {
         timeline.add(elapsedMs(startNanos) + "ms " + label + " requesting lock");
-        jdbcTemplate.queryForMap("SELECT * FROM demo_orders WHERE id = ? FOR UPDATE", orderId);
-
-        timeline.add(elapsedMs(startNanos) + "ms " + label + " acquired lock, holding " + holdMillis + "ms");
+        Map<String, Object> row = jdbcTemplate.queryForMap("SELECT * FROM demo_orders WHERE id = ? FOR UPDATE", orderId);
+        String originalProduct = (String) row.get("product");
+        timeline.add(elapsedMs(startNanos) + "ms " + label + " acquired lock, row: product=" + originalProduct
+                + " amount=" + row.get("amount") + ", holding " + holdMillis + "ms");
         try {
             Thread.sleep(holdMillis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
 
-        jdbcTemplate.update("UPDATE demo_orders SET product = ? WHERE id = ?", label + "_touched", orderId);
-        timeline.add(elapsedMs(startNanos) + "ms " + label + " committing (releasing lock)");
+        int rowsAffected = jdbcTemplate.update("UPDATE demo_orders SET product = ? WHERE id = ?", label + "_touched", orderId);
+        String updatedProduct = jdbcTemplate.queryForObject("SELECT product FROM demo_orders WHERE id = ?", String.class, orderId);
+        timeline.add(elapsedMs(startNanos) + "ms " + label + " update affected " + rowsAffected + " row(s), row is now product=" + updatedProduct);
+
+        // restore the original value so repeated demo runs don't permanently rename the row
+        jdbcTemplate.update("UPDATE demo_orders SET product = ? WHERE id = ?", originalProduct, orderId);
+        timeline.add(elapsedMs(startNanos) + "ms " + label + " reverted product to '" + originalProduct + "', committing (releasing lock)");
     }
 
     private long elapsedMs(long startNanos) {

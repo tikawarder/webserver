@@ -44,10 +44,12 @@ function SqlConsolePanel() {
       "-- Thread-A:\n" +
       "SELECT * FROM demo_orders WHERE id = 1 FOR UPDATE;\n" +
       "UPDATE demo_orders SET product = 'Thread-A_touched' WHERE id = 1;\n" +
+      "UPDATE demo_orders SET product = 'Laptop' WHERE id = 1; -- reverted after proving the write\n" +
       "\n" +
       "-- Thread-B (runs 200ms later, against the same row):\n" +
       "SELECT * FROM demo_orders WHERE id = 1 FOR UPDATE;\n" +
-      "UPDATE demo_orders SET product = 'Thread-B_touched' WHERE id = 1;"
+      "UPDATE demo_orders SET product = 'Thread-B_touched' WHERE id = 1;\n" +
+      "UPDATE demo_orders SET product = 'Laptop' WHERE id = 1; -- reverted after proving the write"
     );
 
     try {
