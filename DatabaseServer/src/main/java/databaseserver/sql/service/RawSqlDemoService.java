@@ -9,6 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,15 +83,37 @@ public class RawSqlDemoService {
     // GENERIC EXECUTE — backs the SQL console UI, runs whatever SQL the user types
     // =========================================================================
 
+    // Statement.execute() reports whether the DB produced a ResultSet or an update count,
+    // instead of us guessing from the SQL text (which breaks on lowercase, leading whitespace, CTEs...).
     public Map<String, Object> executeRawSql(String sql) {
-        String trimmed = sql.trim().toUpperCase();
-        Map<String, Object> result = new LinkedHashMap<>();
-        if (trimmed.startsWith("SELECT") || trimmed.startsWith("EXPLAIN") || trimmed.startsWith("WITH")) {
-            result.put("rows", jdbcTemplate.queryForList(sql));
-        } else {
-            result.put("rowsAffected", jdbcTemplate.update(sql));
+        return jdbcTemplate.execute((Connection connection) -> {
+            Map<String, Object> result = new LinkedHashMap<>();
+            try (Statement statement = connection.createStatement()) {
+                boolean isResultSet = statement.execute(sql);
+                if (isResultSet) {
+                    try (ResultSet resultSet = statement.getResultSet()) {
+                        result.put("rows", extractRows(resultSet));
+                    }
+                } else {
+                    result.put("rowsAffected", statement.getUpdateCount());
+                }
+            }
+            return result;
+        });
+    }
+
+    private List<Map<String, Object>> extractRows(ResultSet resultSet) throws SQLException {
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        List<Map<String, Object>> rows = new ArrayList<>();
+        while (resultSet.next()) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            for (int i = 1; i <= columnCount; i++) {
+                row.put(metaData.getColumnLabel(i), resultSet.getObject(i));
+            }
+            rows.add(row);
         }
-        return result;
+        return rows;
     }
 
     // =========================================================================
