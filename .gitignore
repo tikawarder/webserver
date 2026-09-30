@@ -47,3 +47,5 @@ UserInputServer/test-results/
 *.tfstate.backup
 *.tfvars
 /AWS.txt
+/docs/adr/001-ecs-instance-sizing.md
+/docs/adr/002-ssm-instead-of-ssh.md
